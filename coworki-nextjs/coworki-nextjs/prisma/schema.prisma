@@ -1,0 +1,290 @@
+// Prisma schema for CoWorki - Tunisian Coworking Platform
+// Generated with Next.js 14 + PostgreSQL + Prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  PARTNER
+  ENTERPRISE
+  ADMIN
+}
+
+enum SeatType {
+  DESK
+  PRIVATE_OFFICE
+  MEETING_ROOM
+  EVENT_SPACE
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum ReservationDuration {
+  TWO_HOURS
+  FOUR_HOURS
+  FULL_DAY
+}
+
+enum PaymentStatus {
+  PENDING
+  HELD
+  RELEASED
+  REFUNDED
+}
+
+enum SubscriptionTier {
+  FREE
+  PREMIUM
+  PREMIUM_PLUS
+}
+
+enum FlashDealStatus {
+  ACTIVE
+  EXPIRED
+}
+
+enum FlashDealTrigger {
+  AUTO
+  MANUAL
+}
+
+// Modèle utilisateur principal
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  password       String
+  name           String
+  phone          String?
+  role           UserRole @default(USER)
+  interests      String[] // Array d'intérêts pour Smart Matching
+  loyaltyPoints  Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  ownedSpaces      CoworkingSpace[]
+  reservations     Reservation[]
+  reviews          Review[]
+  smartMatchesFrom SmartMatch[]     @relation("SmartMatchFrom")
+  smartMatchesTo   SmartMatch[]     @relation("SmartMatchTo")
+  eventsSponsored  Event[]
+
+  // Index pour recherche rapide
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+// Espace de coworking partenaire
+model CoworkingSpace {
+  id               String            @id @default(cuid())
+  name             String
+  description      String
+  address          String
+  city             String
+  lat              Float
+  lng              Float
+  photos           String[]          // URLs des photos
+  pricePerHour     Float
+  pricePerDay      Float
+  priceMonthly     Float?
+  amenities        String[]          // ["WiFi", "Café", "Imprimante", etc.]
+  capacity         Int
+  subscriptionTier SubscriptionTier  @default(FREE)
+  ecoScore         Float             @default(0) // Score Eco-Visibility (0-100)
+  isVerified       Boolean           @default(false)
+  ownerId          String
+
+  // Relations
+  owner         User[]
+  seats         Seat[]
+  reservations  Reservation[]
+  flashDeals    FlashDeal[]
+  events        Event[]
+  reviews       Review[]
+  subscriptions Subscription[]
+  smartMatches  SmartMatch[]
+
+  // Index pour géosearch et filtres
+  @@index([city])
+  @@index([subscriptionTier])
+  @@index([isVerified])
+  @@index([lat, lng])
+  @@index([pricePerHour])
+  @@index([pricePerDay])
+  @@index([ecoScore])
+  @@map("coworking_spaces")
+}
+
+// Poste de travail dans un espace
+model Seat {
+  id          String   @id @default(cuid())
+  spaceId     String
+  space       CoworkingSpace @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  name        String
+  type        SeatType
+  isAvailable Boolean  @default(true)
+
+  // Relations
+  reservations Reservation[]
+
+  // Index pour disponibilité
+  @@index([spaceId])
+  @@index([isAvailable])
+  @@map("seats")
+}
+
+// Réservation
+model Reservation {
+  id             String             @id @default(cuid())
+  userId         String
+  spaceId        String
+  seatId         String?
+  startDate      DateTime
+  endDate        DateTime
+  duration       ReservationDuration
+  status         ReservationStatus  @default(PENDING)
+  totalAmount    Float
+  commission     Float              // 15% de commission CoWorki
+  paymentStatus  PaymentStatus      @default(PENDING)
+  paymentIntentId String?           // Référence Stripe/Konnect
+  isB2B          Boolean            @default(false)
+  createdAt      DateTime           @default(now())
+
+  // Relations
+  user   User            @relation(fields: [userId], references: [id])
+  space  CoworkingSpace  @relation(fields: [spaceId], references: [id])
+  seat   Seat?           @relation(fields: [seatId], references: [id])
+  review Review?
+
+  // Index pour recherche et analytics
+  @@index([userId])
+  @@index([spaceId])
+  @@index([startDate])
+  @@index([status])
+  @@index([paymentStatus])
+  @@map("reservations")
+}
+
+// Offre flash automatique
+model FlashDeal {
+  id          String          @id @default(cuid())
+  spaceId     String
+  discountPercent Float
+  startAt     DateTime
+  endAt       DateTime
+  triggeredBy FlashDealTrigger @default(AUTO)
+  status      FlashDealStatus @default(ACTIVE)
+
+  // Relations
+  space CoworkingSpace @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  // Index pour expiration
+  @@index([spaceId])
+  @@index([status])
+  @@index([endAt])
+  @@map("flash_deals")
+}
+
+// Match intelligent entre utilisateurs
+model SmartMatch {
+  id               String  @id @default(cuid())
+  userId           String
+  matchedUserId    String
+  spaceId          String
+  reservationId    String?
+  similarityScore  Float
+  chatRoomId       String  @unique
+
+  // Relations
+  user        User            @relation("SmartMatchFrom", fields: [userId], references: [id])
+  matchedUser User            @relation("SmartMatchTo", fields: [matchedUserId], references: [id])
+  space       CoworkingSpace  @relation(fields: [spaceId], references: [id])
+  reservation Reservation?    @relation(fields: [reservationId], references: [id])
+
+  // Index pour recherche de matches
+  @@index([userId])
+  @@index([matchedUserId])
+  @@index([spaceId])
+  @@index([similarityScore])
+  @@map("smart_matches")
+}
+
+// Événements CoWorki
+model Event {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  spaceId      String
+  date         DateTime
+  capacity     Int
+  price        Float    @default(0) // Gratuit par défaut
+  sponsorId    String?
+  sponsorName  String?
+  coverImage   String?
+  createdAt    DateTime @default(now())
+
+  // Relations
+  space       CoworkingSpace @relation(fields: [spaceId], references: [id])
+  sponsor     User?          @relation(fields: [sponsorId], references: [id])
+
+  // Index pour recherche d'événements
+  @@index([spaceId])
+  @@index([date])
+  @@map("events")
+}
+
+// Avis utilisateurs
+model Review {
+  id           String   @id @default(cuid())
+  userId       String
+  spaceId      String
+  reservationId String  @unique
+  rating       Int      // 1-5 étoiles
+  comment      String
+  ecoTags      String[] // Tags Crowd-Auditing pour éco-score
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  // Relations
+  user         User            @relation(fields: [userId], references: [id])
+  space        CoworkingSpace  @relation(fields: [spaceId], references: [id])
+  reservation  Reservation     @relation(fields: [reservationId], references: [id])
+
+  // Contraintes
+  @@index([spaceId])
+  @@index([rating])
+  @@map("reviews")
+}
+
+// Abonnement partenaire
+model Subscription {
+  id         String           @id @default(cuid())
+  spaceId    String           @unique
+  tier       SubscriptionTier
+  amount     Float            // 49 ou 99 TND
+  startDate  DateTime
+  endDate    DateTime
+  isActive   Boolean          @default(true)
+
+  // Relations
+  space CoworkingSpace @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  // Index pour renouvellements
+  @@index([spaceId])
+  @@index([isActive])
+  @@index([endDate])
+  @@map("subscriptions")
+}
