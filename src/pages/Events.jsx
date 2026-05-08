@@ -1,6 +1,7 @@
 import logo from "../assets/logo-coworki.png";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import MobileNav from "../components/MobileNav";
 import {
   Calendar,
   MapPin,
@@ -112,16 +113,18 @@ function Events() {
 
       {/* HEADER */}
       <header className="sticky top-0 z-50 border-b border-white/30 bg-white/70 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+        <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
             <Link to="/">
-              <img src={logo} alt="Logo CoWorki" className="h-20 w-auto md:h-24" />
+              <img src={logo} alt="Logo CoWorki" className="h-16 w-auto sm:h-20 md:h-24" />
             </Link>
           </motion.div>
+
+          <MobileNav />
 
           <nav className="hidden items-center gap-7 rounded-full border border-slate-200/70 bg-white/80 px-6 py-3 text-sm font-black text-slate-600 shadow-sm lg:flex">
             <Link to="/" className="transition hover:text-[#0F6C8D]">
@@ -168,7 +171,7 @@ function Events() {
           className="absolute -right-32 top-20 h-80 w-80 rounded-[4rem] border border-[#0F6C8D]/20 bg-white/20 backdrop-blur"
         />
 
-        <div className="relative mx-auto max-w-7xl px-6 py-20 text-center">
+        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -179,11 +182,11 @@ function Events() {
               Networking • Formation • Business • Communauté
             </p>
 
-            <h1 className="mx-auto max-w-4xl text-4xl font-black leading-tight tracking-[-0.04em] text-[#0F2A43] md:text-7xl">
+            <h1 className="mx-auto max-w-4xl text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-[-0.04em] text-[#0F2A43]">
               CoWorki Events
             </h1>
 
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+            <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-7 sm:leading-8 text-slate-600">
               Participez à des workshops, meetups, formations et événements professionnels organisés dans les
               meilleurs espaces de coworking en Tunisie.
             </p>
@@ -213,7 +216,7 @@ function Events() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="mt-20 grid gap-4 md:grid-cols-4"
+            className="mt-8 sm:mt-20 grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4"
           >
             {[
               { number: "+40", label: "événements prévus" },
@@ -236,7 +239,7 @@ function Events() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="mt-14 grid gap-4 md:grid-cols-3"
+            className="mt-10 sm:mt-14 grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3"
           >
             {highlights.map((item, idx) => (
               <motion.div
@@ -293,7 +296,7 @@ function Events() {
         </motion.div>
 
         {/* EVENTS CARDS */}
-        <motion.div layout className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
+        <motion.div layout className="grid gap-6 sm:gap-7 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {filteredEvents.map((event, index) => (
             <motion.div
               key={event.id}
@@ -413,7 +416,7 @@ function Events() {
           </p>
         </motion.div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
           {advantages.map((adv, idx) => (
             <motion.div
               key={idx}
@@ -487,7 +490,7 @@ function Events() {
           </p>
         </motion.div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-5 sm:gap-6 grid-cols-1 md:grid-cols-3">
           {partnerBenefits.map((benefit, idx) => (
             <motion.div
               key={idx}

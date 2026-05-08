@@ -2,6 +2,7 @@ import logo from "../assets/logo-coworki.png";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import ImageCarousel from "../components/ImageCarousel";
+import MobileNav from "../components/MobileNav";
 import { spacesData } from "../data/spacesData";
 import {
   ArrowLeft,
@@ -44,10 +45,12 @@ function SpaceDetails() {
     <div className="min-h-screen bg-[#F7FAFC] text-slate-950">
       {/* HEADER */}
       <header className="sticky top-0 z-50 border-b border-white/40 bg-white/80 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+        <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <Link to="/" className="flex items-center gap-4">
-            <img src={logo} alt="Logo CoWorki" className="h-20 w-auto" />
+            <img src={logo} alt="Logo CoWorki" className="h-16 w-auto sm:h-20 md:h-24" />
           </Link>
+
+          <MobileNav />
 
           <nav className="hidden items-center gap-7 rounded-full border border-slate-200/70 bg-white/80 px-6 py-3 text-sm font-black text-slate-600 shadow-sm lg:flex">
             <Link to="/" className="transition hover:text-[#0F6C8D]">
@@ -104,7 +107,7 @@ function SpaceDetails() {
           className="absolute left-12 top-36 hidden h-28 w-28 rounded-full bg-[#7A1E3A]/10 md:block"
         />
 
-        <div className="relative mx-auto max-w-7xl px-6 py-10">
+        <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
           <Link
             to="/spaces"
             className="mb-8 inline-flex items-center gap-2 rounded-full bg-white/80 px-5 py-3 text-sm font-black text-[#0F2A43] shadow-sm transition hover:text-[#0F6C8D]"
@@ -113,7 +116,7 @@ function SpaceDetails() {
             Retour aux espaces
           </Link>
 
-          <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-[1.1fr_0.9fr]">
             <motion.div
               initial={{ opacity: 0, y: 35 }}
               animate={{ opacity: 1, y: 0 }}
@@ -130,7 +133,7 @@ function SpaceDetails() {
                 </span>
               </div>
 
-              <h1 className="max-w-3xl text-4xl font-black leading-tight tracking-[-0.04em] text-[#0F2A43] md:text-7xl">
+              <h1 className="max-w-3xl text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-tight tracking-[-0.04em] text-[#0F2A43]">
                 {space.name}
               </h1>
 
@@ -192,7 +195,7 @@ function SpaceDetails() {
                 <ImageCarousel
                   images={images}
                   title={space.name}
-                  heightClass="h-[440px]"
+                  heightClass="h-[300px] sm:h-[400px] lg:h-[440px]"
                 />
               </div>
             </motion.div>

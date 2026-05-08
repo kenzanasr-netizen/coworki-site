@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import logo from "../assets/logo-coworki.png";
 import { eventsData } from "../data/eventsData";
+import MobileNav from "../components/MobileNav";
 import {
   ArrowLeft,
   CalendarDays,
@@ -56,10 +57,12 @@ function Reservation() {
     <div className="min-h-screen bg-[#F7FAFC] text-slate-950">
       {/* HEADER */}
       <header className="sticky top-0 z-50 border-b border-white/40 bg-white/80 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+        <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <Link to="/" className="flex items-center gap-4">
-            <img src={logo} alt="Logo CoWorki" className="h-20 w-auto" />
+            <img src={logo} alt="Logo CoWorki" className="h-16 w-auto sm:h-20 md:h-24" />
           </Link>
+
+          <MobileNav />
 
           <nav className="hidden items-center gap-7 rounded-full border border-slate-200/70 bg-white/80 px-6 py-3 text-sm font-black text-slate-600 shadow-sm lg:flex">
             <Link to="/" className="transition hover:text-[#0F6C8D]">

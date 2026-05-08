@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import logo from "../assets/logo-coworki.png";
+import MobileNav from "../components/MobileNav";
 import { ArrowLeft, CalendarDays, Handshake, BadgePercent } from "lucide-react";
 
 const pageContent = {
@@ -31,6 +32,8 @@ function ComingSoon({ type }) {
           <Link to="/" className="flex items-center gap-4">
             <img src={logo} alt="Logo CoWorki" className="h-20 w-auto" />
           </Link>
+
+          <MobileNav />
 
           <nav className="hidden items-center gap-7 rounded-full border border-slate-200/70 bg-white/80 px-6 py-3 text-sm font-black text-slate-600 shadow-sm lg:flex">
             <Link to="/" className="transition hover:text-[#0F6C8D]">

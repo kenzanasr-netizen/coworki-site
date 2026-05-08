@@ -1,6 +1,7 @@
 import logo from "../assets/logo-coworki.png";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import MobileNav from "../components/MobileNav";
 import {
   ArrowRight,
   CheckCircle2,
@@ -12,8 +13,6 @@ import {
   Globe2,
   ChevronDown,
   Clock,
-  MapPin,
-  Calendar,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -292,10 +291,12 @@ function Offres() {
   return (
     <div className="min-h-screen bg-[#F7FAFC] text-slate-950">
       <header className="sticky top-0 z-50 border-b border-white/40 bg-white/80 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
           <Link to="/" className="flex items-center gap-4">
-            <img src={logo} alt="Logo CoWorki" className="h-20 w-auto" />
+            <img src={logo} alt="Logo CoWorki" className="h-16 w-auto sm:h-20 md:h-24" />
           </Link>
+
+          <MobileNav />
 
           <nav className="hidden items-center gap-7 rounded-full border border-slate-200/70 bg-white/80 px-6 py-3 text-sm font-black text-slate-600 shadow-sm lg:flex">
             <Link to="/" className="transition hover:text-[#0F6C8D]">
@@ -336,7 +337,7 @@ function Offres() {
         <div className="absolute left-[-80px] top-0 h-72 w-72 rounded-full bg-[#9ED8E8]/40 blur-3xl" />
         <div className="absolute right-[-80px] bottom-0 h-96 w-96 rounded-full bg-[#7A1E3A]/20 blur-3xl" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+        <div className="relative mx-auto grid max-w-7xl gap-8 sm:gap-12 px-4 sm:px-6 py-12 sm:py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -410,8 +411,8 @@ function Offres() {
           <h2 className="mt-4 text-4xl font-black text-[#0F2A43]">Des solutions claires, instantanées et adaptées à votre profil</h2>
         </motion.div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          {needsCards.map((card, index) => (
+        <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {needsCards.map((card) => (
             <motion.div
               key={card.title}
               whileHover={{ y: -10 }}
@@ -512,20 +513,49 @@ function Offres() {
         </div>
 
         <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-          <div className="grid grid-cols-4 gap-0 border-b border-slate-200 bg-[#F8FBFF] px-6 py-4 text-sm font-black text-slate-600">
+          <div className="hidden lg:grid grid-cols-4 gap-0 border-b border-slate-200 bg-[#F8FBFF] px-6 py-4 text-sm font-black text-slate-600">
             <div>Fonctionnalité</div>
             <div className="text-center">Starter</div>
             <div className="text-center">Premium</div>
             <div className="text-center">Premium Plus</div>
           </div>
-          {comparisonRows.map((row) => (
-            <div key={row.feature} className="grid grid-cols-4 gap-0 border-b border-slate-200 px-6 py-4 text-sm text-slate-700 last:border-none">
-              <div>{row.feature}</div>
-              <div className="flex items-center justify-center">{row.starter ? <CheckCircle2 className="h-5 w-5 text-[#0F6C8D]" /> : "—"}</div>
-              <div className="flex items-center justify-center">{row.premium ? <CheckCircle2 className="h-5 w-5 text-[#0F6C8D]" /> : "—"}</div>
-              <div className="flex items-center justify-center">{row.premiumPlus ? <CheckCircle2 className="h-5 w-5 text-[#0F6C8D]" /> : "—"}</div>
-            </div>
-          ))}
+
+          <div className="lg:hidden space-y-4 p-6">
+            {['Starter', 'Premium', 'Premium Plus'].map((plan) => {
+              const key = plan === 'Premium Plus' ? 'premiumPlus' : plan.toLowerCase();
+              return (
+                <div key={plan} className="rounded-[1.75rem] border border-slate-200 bg-[#F8FBFF] p-5 shadow-sm">
+                  <div className="mb-4 flex items-center justify-between gap-3 text-sm font-black text-slate-700">
+                    <span>{plan}</span>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-[0.3em] text-slate-500">
+                      Plan
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    {comparisonRows.map((row) => (
+                      <div key={row.feature} className="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 shadow-sm">
+                        <span>{row.feature}</span>
+                        <span className="flex items-center justify-center text-[#0F6C8D]">
+                          {row[key] ? <CheckCircle2 className="h-5 w-5" /> : '—'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="hidden lg:block">
+            {comparisonRows.map((row) => (
+              <div key={row.feature} className="grid grid-cols-4 gap-0 border-b border-slate-200 px-6 py-4 text-sm text-slate-700 last:border-none">
+                <div>{row.feature}</div>
+                <div className="flex items-center justify-center">{row.starter ? <CheckCircle2 className="h-5 w-5 text-[#0F6C8D]" /> : '—'}</div>
+                <div className="flex items-center justify-center">{row.premium ? <CheckCircle2 className="h-5 w-5 text-[#0F6C8D]" /> : '—'}</div>
+                <div className="flex items-center justify-center">{row.premiumPlus ? <CheckCircle2 className="h-5 w-5 text-[#0F6C8D]" /> : '—'}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -1,6 +1,6 @@
 import logo from "../assets/logo-coworki.png";
 import { Link } from "react-router-dom";
-import ImageCarousel from "../components/ImageCarousel";
+import MobileNav from "../components/MobileNav";
 import { spacesData } from "../data/spacesData";
 import {
   Search,
@@ -38,10 +38,12 @@ function Spaces() {
     <div className="min-h-screen bg-[#F7FAFC] text-slate-950">
       {/* HEADER */}
       <header className="sticky top-0 z-50 border-b border-white/40 bg-white/80 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+        <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-4">
-            <img src={logo} alt="Logo CoWorki" className="h-20 w-auto" />
+            <img src={logo} alt="Logo CoWorki" className="h-16 w-auto sm:h-20 md:h-24" />
           </div>
+
+          <MobileNav />
 
           <nav className="hidden items-center gap-7 rounded-full border border-slate-200/70 bg-white/80 px-6 py-3 text-sm font-black text-slate-600 shadow-sm lg:flex">
             <Link to="/" className="transition hover:text-[#0F6C8D]">
@@ -97,7 +99,7 @@ function Spaces() {
           className="absolute left-12 top-32 hidden h-28 w-28 rounded-full bg-[#7A1E3A]/10 md:block"
         />
 
-        <div className="relative mx-auto max-w-7xl px-6 py-20 text-center">
+        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -108,11 +110,11 @@ function Spaces() {
               Recherche intelligente d’espaces
             </p>
 
-            <h1 className="mx-auto max-w-4xl text-4xl font-black leading-tight tracking-[-0.04em] text-[#0F2A43] md:text-7xl">
+            <h1 className="mx-auto max-w-4xl text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-[-0.04em] text-[#0F2A43]">
               Trouvez l’espace qui correspond vraiment à votre façon de travailler.
             </h1>
 
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+            <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-7 sm:leading-8 text-slate-600">
               Comparez les espaces de coworking selon la ville, le prix, les services,
               l’ambiance et les disponibilités.
             </p>
@@ -123,21 +125,21 @@ function Spaces() {
             initial={{ opacity: 0, y: 35 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.15 }}
-            className="mx-auto mt-10 max-w-5xl rounded-[2rem] border border-white/80 bg-white/85 p-4 shadow-2xl shadow-slate-300/60 backdrop-blur-2xl"
+            className="mx-auto mt-8 sm:mt-10 max-w-5xl rounded-[2rem] border border-white/80 bg-white/85 p-3 sm:p-4 shadow-2xl shadow-slate-300/60 backdrop-blur-2xl overflow-hidden"
           >
-            <div className="grid gap-3 md:grid-cols-[1.3fr_1fr_1fr_auto]">
-              <div className="flex items-center gap-3 rounded-3xl bg-[#F7FAFC] px-4 py-4">
-                <Search className="h-5 w-5 text-[#0F6C8D]" />
+            <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-[1.3fr_1fr_1fr_auto]">
+              <div className="flex items-center gap-3 rounded-2xl sm:rounded-3xl bg-[#F7FAFC] px-3 sm:px-4 py-3 sm:py-4">
+                <Search className="h-5 w-5 text-[#0F6C8D] flex-shrink-0" />
                 <input
                   type="text"
-                  placeholder="Rechercher un espace, une ville..."
-                  className="w-full bg-transparent font-bold text-[#0F2A43] outline-none placeholder:text-slate-400 transition-colors focus:text-[#0F6C8D]"
+                  placeholder="Rechercher..."
+                  className="w-full bg-transparent font-bold text-sm text-[#0F2A43] outline-none placeholder:text-slate-400 transition-colors focus:text-[#0F6C8D]"
                 />
               </div>
 
-              <div className="flex items-center gap-3 rounded-3xl bg-[#F7FAFC] px-4 py-4">
-                <MapPin className="h-5 w-5 text-[#0F6C8D]" />
-                <select className="w-full bg-transparent font-bold text-[#0F2A43] outline-none transition-colors focus:text-[#0F6C8D]">
+              <div className="flex items-center gap-3 rounded-2xl sm:rounded-3xl bg-[#F7FAFC] px-3 sm:px-4 py-3 sm:py-4">
+                <MapPin className="h-5 w-5 text-[#0F6C8D] flex-shrink-0" />
+                <select className="w-full bg-transparent font-bold text-sm text-[#0F2A43] outline-none transition-colors focus:text-[#0F6C8D]">
                   <option>Ville</option>
                   <option>Sousse</option>
                   <option>Tunis</option>
@@ -147,7 +149,7 @@ function Spaces() {
                 </select>
               </div>
 
-              <div className="flex items-center gap-3 rounded-3xl bg-[#F7FAFC] px-4 py-4">
+              <div className="hidden sm:flex items-center gap-3 rounded-3xl bg-[#F7FAFC] px-4 py-4">
                 <Building2 className="h-5 w-5 text-[#0F6C8D]" />
                 <select className="w-full bg-transparent font-bold text-[#0F2A43] outline-none transition-colors focus:text-[#0F6C8D]">
                   <option>Type</option>
@@ -158,7 +160,7 @@ function Spaces() {
                 </select>
               </div>
 
-              <button className="rounded-3xl bg-[#7A1E3A] px-8 py-4 font-black text-white shadow-xl shadow-[#7A1E3A]/20 transition hover:bg-[#64172F]">
+              <button className="col-span-1 sm:col-span-auto rounded-2xl sm:rounded-3xl bg-[#7A1E3A] px-4 sm:px-8 py-3 sm:py-4 font-black text-xs sm:text-sm text-white shadow-xl shadow-[#7A1E3A]/20 transition hover:bg-[#64172F] whitespace-nowrap">
                 Rechercher
               </button>
             </div>
@@ -167,9 +169,9 @@ function Spaces() {
       </section>
 
       {/* CONTENT */}
-      <section className="mx-auto grid max-w-7xl gap-8 px-6 py-16 lg:grid-cols-[280px_1fr]">
+      <section className="mx-auto grid max-w-7xl gap-6 sm:gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[280px_1fr]">
         {/* FILTERS */}
-        <aside className="h-fit rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm lg:sticky lg:top-32">
+        <aside className="h-fit rounded-[2rem] border border-slate-100 bg-white p-4 sm:p-6 shadow-sm lg:sticky lg:top-32">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-black text-[#0F2A43]">Filtres</h2>
             <SlidersHorizontal className="h-5 w-5 text-[#7A1E3A]" />
@@ -253,7 +255,7 @@ function Spaces() {
             </select>
           </div>
 
-          <div className="grid gap-7 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-6 sm:gap-7 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
             {spaces.map((space, index) => (
               <Link key={space.name} to={`/spaces/${space.id}`}>
                 <motion.div

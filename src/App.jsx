@@ -10,10 +10,12 @@ import Offres from "./pages/Offres";
 import EventDetails from "./pages/EventDetails";
 import ComingSoon from "./pages/ComingSoon";
 import BackButton from "./components/BackButton";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <BackButton />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -26,6 +28,7 @@ function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetails />} />
         <Route path="/partenaires" element={<ComingSoon type="partenaires" />} />
+        <Route path="*" element={<ComingSoon type="fallback" />} />
       </Routes>
     </BrowserRouter>
   );
