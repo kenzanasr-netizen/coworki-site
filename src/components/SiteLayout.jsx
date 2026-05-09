@@ -34,7 +34,7 @@ export function SiteFooter() {
           </p>
         </div>
         <FooterColumn title="Liens rapides" links={[["Accueil", "/"], ["Espaces", "/spaces"], ["Events", "/events"], ["À propos", "/about"], ["Contact", "/contact"]]} />
-        <FooterColumn title="Plateforme" links={[["Devenir partenaire", "/partenaires"], ["Entreprises", "/business"], ["Démo jury", "/demo"], ["Eco Boost", "/eco-visibility"]]} />
+        <FooterColumn title="Plateforme" links={[["Devenir partenaire", "/partenaires"], ["Entreprises", "/business"], ["Guide utilisateur", "/demo"], ["Eco Boost", "/eco-visibility"]]} />
         <FooterColumn title="Confiance" links={[["Conditions générales", "/legal/terms"], ["Confidentialité", "/legal/privacy"], ["Mentions légales", "/legal/mentions"], ["Annulation", "/legal/cancellation"]]} />
         <div>
           <p className="font-black text-[#0F2A43]">Réseaux sociaux</p>

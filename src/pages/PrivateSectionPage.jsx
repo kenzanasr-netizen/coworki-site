@@ -17,7 +17,7 @@ function PrivateSectionPage({ area }) {
 
   return (
     <PageShell active={area === "admin" ? "/admin" : "/dashboard/partner"}>
-      <PageHero eyebrow={data.eyebrow} title={data.title} text="Interface mockée propre pour présenter le parcours privé CoWorki devant le jury." />
+      <PageHero eyebrow={data.eyebrow} title={data.title} text="Espace privé CoWorki structuré pour suivre les actions importantes et garder une expérience claire." />
       <main className="mx-auto max-w-7xl px-6 py-14">
         {data.rows.length === 0 ? (
           <EmptyState title="Aucune donnée dans cette section." text="Cette vue est prête pour recevoir les données du backend CoWorki." />

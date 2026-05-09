@@ -52,7 +52,7 @@ export const eventsData = [
       "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=900&q=80",
     attendees: 156,
     seats: 50,
-    program: ["Pitchs startups", "Feedback jury", "Networking investisseurs"],
+    program: ["Pitchs startups", "Feedback mentors", "Networking investisseurs"],
     speakers: ["Nour Kallel — Entrepreneure", "Mehdi Sassi — Investisseur"],
   },
   {

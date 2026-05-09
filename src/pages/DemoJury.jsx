@@ -1,35 +1,35 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Building2, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, CalendarCheck, Heart, Search } from "lucide-react";
 import { PageHero, PageShell } from "../components/SiteLayout";
 
 const journeys = [
   {
-    title: "Parcours utilisateur",
-    text: "Explorer un espace, réserver, payer puis accéder au profil et au Smart Matching.",
-    icon: <Users className="h-7 w-7" />,
-    links: [["Explorer les espaces", "/spaces"], ["Connexion utilisateur", "/login"], ["Dashboard user", "/dashboard/user"]],
+    title: "Trouver un espace",
+    text: "Filtrez par ville, budget, services et ambiance pour repérer rapidement le lieu qui vous convient.",
+    icon: <Search className="h-7 w-7" />,
+    links: [["Explorer les espaces", "/spaces"], ["Voir les offres", "/offres"], ["Créer un compte", "/signup"]],
   },
   {
-    title: "Parcours partenaire",
-    text: "Comprendre l’offre partenaire, voir le dashboard, les réservations, B2B, revenus et promotions.",
-    icon: <Building2 className="h-7 w-7" />,
-    links: [["Landing partenaires", "/partenaires"], ["Connexion partenaire", "/login"], ["Dashboard partenaire", "/dashboard/partner"]],
+    title: "Réserver simplement",
+    text: "Choisissez une date, une formule et envoyez votre demande de réservation en quelques clics.",
+    icon: <CalendarCheck className="h-7 w-7" />,
+    links: [["Réserver maintenant", "/spaces"], ["Se connecter", "/login"], ["Mes réservations", "/dashboard"]],
   },
   {
-    title: "Parcours admin",
-    text: "Superviser les utilisateurs, espaces à valider, réservations, transactions et statistiques.",
-    icon: <ShieldCheck className="h-7 w-7" />,
-    links: [["Connexion admin", "/login"], ["Dashboard admin", "/admin"], ["Statistiques", "/admin/stats"]],
+    title: "Garder ses favoris",
+    text: "Ajoutez vos espaces préférés, suivez vos notifications et retrouvez vos réservations depuis votre espace.",
+    icon: <Heart className="h-7 w-7" />,
+    links: [["Mon espace", "/dashboard"], ["Mes favoris", "/dashboard#favoris"], ["Smart Matching", "/dashboard#smart-matching"]],
   },
 ];
 
 function DemoJury() {
   return (
-    <PageShell active="/demo">
+    <PageShell active="/spaces">
       <PageHero
-        eyebrow="Démo jury"
-        title="Trois parcours pour présenter CoWorki clairement."
-        text="Cette page sert de guide de démonstration rapide pour montrer la plateforme comme un vrai produit multi-rôles."
+        eyebrow="Guide utilisateur"
+        title="Votre parcours CoWorki, simple et rapide."
+        text="Trouvez un espace, réservez votre créneau et gardez toutes vos informations dans votre espace personnel."
       />
       <main className="mx-auto grid max-w-7xl gap-6 px-6 py-14 lg:grid-cols-3">
         {journeys.map((journey) => (

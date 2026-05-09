@@ -37,7 +37,7 @@ function About() {
         </section>
 
         <section className="mt-10 rounded-[2.5rem] bg-white p-8 shadow-sm ring-1 ring-slate-100">
-          <StatusBadge tone="red">Vision PFE / startup</StatusBadge>
+          <StatusBadge tone="red">Vision startup</StatusBadge>
           <h2 className="mt-5 text-4xl font-black tracking-[-0.03em] text-[#0F2A43]">Une marketplace pensée pour l’écosystème coworking tunisien.</h2>
           <p className="mt-5 max-w-4xl leading-8 text-slate-600">
             CoWorki ne se limite pas à afficher des espaces. Le projet structure un parcours complet avec réservation, événements, demandes B2B, dashboard partenaire, back-office admin, Smart Matching après réservation et visibilité responsable des espaces.

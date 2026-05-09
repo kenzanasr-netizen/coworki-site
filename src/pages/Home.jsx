@@ -551,22 +551,22 @@ function Home() {
               Pourquoi CoWorki est différent ?
             </h2>
             <p className="mt-5 leading-8 text-slate-600">
-              CoWorki n’est pas seulement une vitrine d’espaces. La plateforme structure les parcours utilisateur, partenaire, entreprise et admin pour montrer une vraie logique marketplace.
+              CoWorki n’est pas seulement une vitrine d’espaces. La plateforme vous aide à passer rapidement de la recherche à la réservation, avec des favoris, des notifications et des recommandations utiles.
             </p>
             <Link
-              to="/demo"
+              to="/spaces"
               className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#7A1E3A] px-7 py-4 text-sm font-black text-white shadow-xl shadow-[#7A1E3A]/20 transition hover:bg-[#64172F]"
             >
-              Lancer la démo jury
+              Explorer les espaces
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             {[
-              ["Parcours multi-rôles", "Utilisateur, partenaire, entreprise et admin ont chacun un espace clair.", <Users className="h-6 w-6" />],
-              ["Réservation + B2B", "Les besoins individuels et entreprises sont traités dans une même plateforme.", <BriefcaseBusiness className="h-6 w-6" />],
-              ["Smart Matching contextualisé", "La mise en relation apparaît après réservation, dans le bon contexte.", <Network className="h-6 w-6" />],
-              ["Pilotage partenaire", "Les espaces suivent réservations, revenus, occupation et promotions.", <CalendarCheck className="h-6 w-6" />],
+              ["Recherche claire", "Ville, budget, services et ambiance sont faciles à comparer.", <Users className="h-6 w-6" />],
+              ["Réservation rapide", "Un parcours court pour choisir un créneau et envoyer une demande.", <BriefcaseBusiness className="h-6 w-6" />],
+              ["Networking utile", "Le Smart Matching apparaît après réservation, au bon moment.", <Network className="h-6 w-6" />],
+              ["Suivi personnel", "Réservations, favoris et notifications restent accessibles depuis votre espace.", <CalendarCheck className="h-6 w-6" />],
             ].map(([title, text, icon]) => (
               <motion.div
                 key={title}
@@ -797,10 +797,10 @@ function Home() {
                 Réserver un espace
               </Link>
               <Link
-                to="/demo"
+                to="/dashboard"
                 className="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-black text-[#0F2A43] transition hover:border-[#0F6C8D] hover:text-[#0F6C8D]"
               >
-                Voir le parcours
+                Voir mon espace
               </Link>
             </div>
           </motion.div>
