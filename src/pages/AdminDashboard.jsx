@@ -1,20 +1,80 @@
 import { BarChart3, Building2, CreditCard, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import EmptyState from "../components/EmptyState";
 import { PageHero, PageShell, StatusBadge } from "../components/SiteLayout";
+import { apiFetch } from "../data/apiClient";
 import { adminSpaces } from "../data/platformData";
 
 function AdminDashboard() {
+  const [overview, setOverview] = useState(null);
+  const [partners, setPartners] = useState([]);
+  const [notice, setNotice] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    Promise.all([
+      apiFetch("/api/admin/overview").then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.message || "Impossible de charger les statistiques admin.");
+        return data.stats;
+      }),
+      apiFetch("/api/admin/partners?status=PENDING").then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.message || "Impossible de charger les partenaires.");
+        return data.partners || [];
+      }),
+    ])
+      .then(([stats, pendingPartners]) => {
+        if (!active) return;
+        setOverview(stats);
+        setPartners(pendingPartners);
+      })
+      .catch((error) => {
+        if (active) setNotice(error.message);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const updatePartnerStatus = async (partnerId, status) => {
+    setNotice("");
+    try {
+      const response = await apiFetch(`/api/admin/partners/${partnerId}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || "Impossible de mettre à jour le partenaire.");
+      setPartners((current) => current.filter((partner) => partner.id !== partnerId));
+      setNotice(status === "APPROVED" ? "Partenaire approuvé et notifié." : "Partenaire refusé et notifié.");
+    } catch (error) {
+      setNotice(error.message);
+    }
+  };
+
+  const stats = [
+    [<Users />, "Utilisateurs inscrits", overview?.users ?? "—"],
+    [<Building2 />, "Partenaires", overview?.partners ?? "—"],
+    [<BarChart3 />, "Réservations", overview?.reservations ?? "—"],
+    [<CreditCard />, "Entreprises", overview?.companies ?? "—"],
+  ];
+
   return (
     <PageShell active="/admin">
       <PageHero eyebrow="Administration CoWorki" title="Piloter la plateforme et valider l’écosystème." text="Vue globale des utilisateurs, espaces, réservations, avis, événements et abonnements premium." />
       <main className="mx-auto max-w-7xl px-6 py-14">
+        {notice && (
+          <div className="mb-8 rounded-[2rem] bg-white p-5 text-sm font-black text-[#0F6C8D] shadow-sm ring-1 ring-slate-100">
+            {notice}
+          </div>
+        )}
+
         <section className="grid gap-5 md:grid-cols-4">
-          {[
-            [<Users />, "Utilisateurs inscrits", "1 240"],
-            [<Building2 />, "Espaces partenaires", "38"],
-            [<BarChart3 />, "Réservations", "2 860"],
-            [<CreditCard />, "Chiffre d’affaires", "71 640 TND"],
-          ].map(([icon, label, value]) => (
+          {stats.map(([icon, label, value]) => (
             <div key={label} className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-100">
               <span className="text-[#0F6C8D] [&_svg]:h-6 [&_svg]:w-6">{icon}</span>
               <p className="mt-4 text-sm font-black text-slate-500">{label}</p>
@@ -22,11 +82,12 @@ function AdminDashboard() {
             </div>
           ))}
         </section>
+
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           {[
-            ["Validation requise", "2 espaces attendent une décision admin.", "amber"],
-            ["Transaction payée", "TX-2048 a été confirmée avec succès.", "green"],
-            ["Signalement", "1 avis nécessite une vérification.", "red"],
+            ["Validation requise", `${overview?.pendingPartners ?? 0} partenaire(s) attendent une décision admin.`, "amber"],
+            ["Transactions", "Les transactions seront visibles après les premiers paiements.", "green"],
+            ["Signalements", "Les avis signalés apparaîtront ici dès qu’ils existent.", "red"],
           ].map(([title, text, tone]) => (
             <div key={title} className="rounded-[2rem] bg-white p-5 shadow-sm ring-1 ring-slate-100">
               <StatusBadge tone={tone}>{title}</StatusBadge>
@@ -34,24 +95,43 @@ function AdminDashboard() {
             </div>
           ))}
         </section>
+
         <section className="mt-8 grid gap-8 lg:grid-cols-2">
-          <Panel title="Espaces en attente de validation">
-            {adminSpaces.map((space) => (
-              <div key={space.name} className="mb-3 rounded-2xl bg-[#F7FAFC] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="font-black text-[#0F2A43]">{space.name}</p>
-                    <p className="text-sm text-slate-500">{space.city} · {space.owner}</p>
+          <Panel title="Partenaires en attente de validation">
+            {partners.length ? (
+              partners.map((partner) => (
+                <div key={partner.id} className="mb-3 rounded-2xl bg-[#F7FAFC] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-black text-[#0F2A43]">{partner.companyName}</p>
+                      <p className="text-sm text-slate-500">{partner.user?.email} · {partner.user?.phone || "Téléphone non renseigné"}</p>
+                    </div>
+                    <StatusBadge tone="amber">{partner.status}</StatusBadge>
                   </div>
-                  <StatusBadge tone={space.status === "Validé" ? "green" : "amber"}>{space.status}</StatusBadge>
+                  <div className="mt-3 flex gap-2">
+                    <button onClick={() => updatePartnerStatus(partner.id, "APPROVED")} className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-black text-white">Valider</button>
+                    <button onClick={() => updatePartnerStatus(partner.id, "REJECTED")} className="rounded-full bg-[#7A1E3A] px-4 py-2 text-xs font-black text-white">Refuser</button>
+                  </div>
                 </div>
-                <div className="mt-3 flex gap-2">
-                  <button className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-black text-white">Valider</button>
-                  <button className="rounded-full bg-[#7A1E3A] px-4 py-2 text-xs font-black text-white">Refuser</button>
+              ))
+            ) : adminSpaces.length ? (
+              adminSpaces.map((space) => (
+                <div key={space.name} className="mb-3 rounded-2xl bg-[#F7FAFC] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-black text-[#0F2A43]">{space.name}</p>
+                      <p className="text-sm text-slate-500">{space.city} · {space.owner}</p>
+                    </div>
+                    <StatusBadge tone={space.status === "Validé" ? "green" : "amber"}>{space.status}</StatusBadge>
+                  </div>
+                  <p className="mt-3 text-xs font-bold text-slate-500">Donnée de démonstration affichée si aucun partenaire réel n’est en attente.</p>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <EmptyState title="Aucun partenaire en attente." text="Les demandes créées depuis l’inscription partenaire apparaîtront ici." />
+            )}
           </Panel>
+
           <Panel title="Gestion plateforme">
             {[
               ["Gestion des utilisateurs", "/admin/users"],

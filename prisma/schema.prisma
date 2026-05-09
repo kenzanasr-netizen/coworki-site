@@ -26,24 +26,40 @@ enum ReservationStatus {
   COMPLETED
 }
 
+enum VerificationChannel {
+  EMAIL
+  PHONE
+}
+
+enum VerificationPurpose {
+  REGISTER
+  LOGIN
+  RESET_PASSWORD
+}
+
 model User {
-  id           String         @id @default(cuid())
-  fullName     String
-  email        String         @unique
-  passwordHash String
-  phone        String?
-  role         Role           @default(USER)
-  interests    String[]
-  profile      Profile?
-  partner      Partner?
-  company      Company?
-  reservations Reservation[]
-  favorites    Favorite[]
-  reviews      Review[]
-  payments     Payment[]
-  notifications Notification[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id                String             @id @default(cuid())
+  fullName          String
+  email             String             @unique
+  passwordHash      String
+  phone             String?
+  role              Role               @default(USER)
+  interests         String[]
+  emailVerified     Boolean            @default(false)
+  phoneVerified     Boolean            @default(false)
+  isActive          Boolean            @default(false)
+  profile           Profile?
+  partner           Partner?
+  company           Company?
+  reservations      Reservation[]
+  favorites         Favorite[]
+  reviews           Review[]
+  payments          Payment[]
+  notifications     Notification[]
+  verificationCodes VerificationCode[]
+  adminActionLogs   AdminActionLog[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 }
 
 model Profile {
@@ -82,25 +98,26 @@ model Company {
 }
 
 model Space {
-  id           String        @id @default(cuid())
-  partnerId    String?
-  partner      Partner?      @relation(fields: [partnerId], references: [id], onDelete: SetNull)
-  name         String
-  city         String
-  address      String
-  description  String?
-  services     String[]
-  images       String[]
-  price2h      Int?
-  price4h      Int?
-  priceDay     Int?
-  capacity     Int?
-  isPublished  Boolean       @default(false)
-  reservations Reservation[]
-  favorites    Favorite[]
-  reviews      Review[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id              String          @id @default(cuid())
+  partnerId       String?
+  partner         Partner?        @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  name            String
+  city            String
+  address         String
+  description     String?
+  services        String[]
+  images          String[]
+  price2h         Int?
+  price4h         Int?
+  priceDay        Int?
+  capacity        Int?
+  isPublished     Boolean         @default(false)
+  reservations    Reservation[]
+  favorites       Favorite[]
+  reviews         Review[]
+  dailyCapacities DailyCapacity[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model Reservation {
@@ -141,15 +158,15 @@ model Review {
 }
 
 model Payment {
-  id            String       @id @default(cuid())
+  id            String      @id @default(cuid())
   userId        String
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reservationId String       @unique
-  reservation   Reservation  @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reservationId String      @unique
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
   amount        Int
   provider      String
   status        String
-  createdAt     DateTime     @default(now())
+  createdAt     DateTime    @default(now())
 }
 
 model Notification {
@@ -158,6 +175,48 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   message   String
+  type      String?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model VerificationCode {
+  id        String              @id @default(cuid())
+  userId    String?
+  user      User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email     String?
+  phone     String?
+  channel   VerificationChannel
+  purpose   VerificationPurpose @default(REGISTER)
+  codeHash  String
+  used      Boolean             @default(false)
+  expiresAt DateTime
+  createdAt DateTime            @default(now())
+
+  @@index([email, channel, purpose])
+  @@index([phone, channel, purpose])
+}
+
+model DailyCapacity {
+  id                String   @id @default(cuid())
+  spaceId           String
+  space             Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  date              DateTime
+  capacity          Int      @default(0)
+  remainingCapacity Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([spaceId, date])
+}
+
+model AdminActionLog {
+  id         String   @id @default(cuid())
+  adminId    String?
+  admin      User?    @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  action     String
+  targetId   String?
+  targetType String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
 }

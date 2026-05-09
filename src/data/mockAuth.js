@@ -1,7 +1,8 @@
+import { apiFetch, setAuthToken } from "./apiClient";
+
 const USERS_KEY = "coworki-users";
 const SESSION_KEY = "coworki-session-user-id";
 const SESSION_PROFILE_KEY = "coworki-session-profile";
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
 const roleLabels = {
   user: "Utilisateur",
@@ -56,9 +57,39 @@ export async function createAccount(role, profile) {
     throw new Error(data.message || "Impossible de créer le compte.");
   }
 
-  const session = toClientSession(data.user, role);
+  if (data.requiresVerification) {
+    return data;
+  }
+
+  const session = toClientSession(data.user, role, data.token);
   setServerSession(session);
   return session;
+}
+
+export async function verifyRegistration({ email, emailCode, phoneCode }) {
+  const response = await apiFetch("/api/auth/verify-registration", {
+    method: "POST",
+    body: JSON.stringify({ email, emailCode, phoneCode }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || "Code de vérification invalide.");
+  }
+  const session = toClientSession(data.user, null, data.token);
+  setServerSession(session);
+  return session;
+}
+
+export async function resendVerification(email) {
+  const response = await apiFetch("/api/auth/resend-verification", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || "Impossible de renvoyer les codes.");
+  }
+  return data;
 }
 
 export async function loginWithCredentials(email, password) {
@@ -72,7 +103,23 @@ export async function loginWithCredentials(email, password) {
     throw new Error(data.message || "Email ou mot de passe incorrect.");
   }
 
-  const session = toClientSession(data.user);
+  const session = toClientSession(data.user, null, data.token);
+  setServerSession(session);
+  return session;
+}
+
+export async function syncOAuthAccount(payload) {
+  const response = await apiFetch("/api/auth/oauth-sync", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || "Impossible de synchroniser le compte Google.");
+  }
+
+  const session = toClientSession(data.user, null, data.token);
   setServerSession(session);
   return session;
 }
@@ -80,6 +127,7 @@ export async function loginWithCredentials(email, password) {
 export function clearMockSession() {
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(SESSION_PROFILE_KEY);
+  setAuthToken(null);
   window.dispatchEvent(new Event("coworki-auth-change"));
 }
 
@@ -138,21 +186,8 @@ function saveUsers(users) {
 function setServerSession(session) {
   localStorage.setItem(SESSION_KEY, session.id);
   localStorage.setItem(SESSION_PROFILE_KEY, JSON.stringify(session));
+  setAuthToken(session.token);
   window.dispatchEvent(new Event("coworki-auth-change"));
-}
-
-async function apiFetch(path, options = {}) {
-  try {
-    return await fetch(`${API_BASE_URL}${path}`, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {}),
-      },
-    });
-  } catch {
-    throw new Error("Serveur d’authentification indisponible. Lancez npm run dev puis réessayez.");
-  }
 }
 
 function getStoredServerSession() {
@@ -164,14 +199,16 @@ function getStoredServerSession() {
   }
 }
 
-function toClientSession(user, fallbackRole) {
+function toClientSession(user, fallbackRole, token = "") {
   const role = normalizeRole(user.role || fallbackRole);
   return {
     id: user.id,
+    token,
     fullName: user.fullName,
     name: user.fullName,
     email: user.email,
     phone: user.phone || "",
+    avatar: user.profile?.avatar || "",
     role,
     status: roleLabels[role],
     city: user.profile?.city || "",

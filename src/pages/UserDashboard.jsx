@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Bell, Heart, MessageSquare, Star, Trophy, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PageHero, PageShell, StatusBadge } from "../components/SiteLayout";
 import { matchingProfiles, profileUser } from "../data/platformData";
 import { getMockSession, updateCurrentUser } from "../data/mockAuth";
 import EmptyState from "../components/EmptyState";
+import { apiFetch } from "../data/apiClient";
 
 function UserDashboard() {
   const session = getMockSession();
@@ -16,8 +17,47 @@ function UserDashboard() {
     points: session?.points ?? profileUser.points,
     hasConfirmedBooking: session?.hasConfirmedBooking ?? true,
   };
-  const reservations = currentUser.reservations || [];
-  const favorites = currentUser.favorites || [];
+  const [liveReservations, setLiveReservations] = useState(currentUser.reservations || []);
+  const [liveFavorites, setLiveFavorites] = useState(currentUser.favorites || []);
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    if (!session?.id) return;
+
+    let active = true;
+    Promise.all([
+      apiFetch("/api/reservations/my").then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.message || "Impossible de charger les réservations.");
+        return data.reservations || [];
+      }),
+      apiFetch("/api/favorites/my").then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.message || "Impossible de charger les favoris.");
+        return data.favorites || [];
+      }),
+      apiFetch("/api/notifications").then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.message || "Impossible de charger les notifications.");
+        return data.notifications || [];
+      }),
+    ])
+      .then(([nextReservations, nextFavorites, nextNotifications]) => {
+        if (!active) return;
+        setLiveReservations(nextReservations);
+        setLiveFavorites(nextFavorites);
+        setNotifications(nextNotifications);
+      })
+      .catch(() => {
+        if (!active) return;
+        setLiveReservations([]);
+        setLiveFavorites([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [session?.id]);
 
   return (
     <PageShell active="/dashboard/user">
@@ -41,15 +81,17 @@ function UserDashboard() {
 
         <section className="space-y-8">
           <Card title="Réservations à venir" id="reservations">
-            {reservations.length ? (
+            {liveReservations.length ? (
               <div className="grid gap-4">
-                {reservations.map((item) => (
-                  <div key={item.space} className="grid gap-3 rounded-3xl bg-[#F7FAFC] p-5 md:grid-cols-[1fr_auto] md:items-center">
+                {liveReservations.map((item) => (
+                  <div key={item.id || item.space} className="grid gap-3 rounded-3xl bg-[#F7FAFC] p-5 md:grid-cols-[1fr_auto] md:items-center">
                     <div>
-                      <h3 className="font-black text-[#0F2A43]">{item.space}</h3>
-                      <p className="mt-1 text-sm font-bold text-slate-500">{item.date} · {item.type} · {item.price}</p>
+                      <h3 className="font-black text-[#0F2A43]">{item.space?.name || item.space}</h3>
+                      <p className="mt-1 text-sm font-bold text-slate-500">
+                        {item.date ? new Date(item.date).toLocaleDateString("fr-FR") : ""} · {item.duration || item.type} · {item.total || item.price} TND
+                      </p>
                     </div>
-                    <StatusBadge tone={item.status === "Confirmée" ? "green" : "amber"}>{item.status}</StatusBadge>
+                    <StatusBadge tone={item.status === "CONFIRMED" || item.status === "Confirmée" ? "green" : "amber"}>{item.status}</StatusBadge>
                   </div>
                 ))}
               </div>
@@ -63,7 +105,18 @@ function UserDashboard() {
           </Card>
 
           <Card title="Notifications CoWorki" icon={<Bell className="h-5 w-5" />}>
-            <EmptyState title="Aucune notification pour le moment." text="Les confirmations, promotions et messages Smart Matching apparaîtront ici." />
+            {notifications.length ? (
+              <div className="grid gap-3">
+                {notifications.slice(0, 5).map((notification) => (
+                  <div key={notification.id} className="rounded-2xl bg-[#F7FAFC] p-4">
+                    <p className="font-black text-[#0F2A43]">{notification.title}</p>
+                    <p className="mt-1 text-sm font-bold text-slate-500">{notification.message}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState title="Aucune notification pour le moment." text="Les confirmations, promotions et messages Smart Matching apparaîtront ici." />
+            )}
           </Card>
 
           <Card title="Smart Matching" icon={<MessageSquare className="h-5 w-5" />} id="smart-matching">
@@ -103,15 +156,18 @@ function UserDashboard() {
           <div className="grid gap-8 lg:grid-cols-2">
             <Card title="Espaces favoris" icon={<Heart className="h-5 w-5" />} id="favoris">
               <div className="grid gap-3">
-                {favorites.length ? favorites.map((space) => (
-                  <Link key={space.id} to={`/spaces/${space.id}`} className="flex items-center gap-3 rounded-2xl bg-[#F7FAFC] p-3 transition hover:bg-[#ECF8FC]">
-                    <img src={space.images[0]} alt={space.name} className="h-14 w-16 rounded-2xl object-cover" />
+                {liveFavorites.length ? liveFavorites.map((favorite) => {
+                  const space = favorite.space || favorite;
+                  return (
+                  <Link key={favorite.id || space.id} to={`/spaces/${space.id}`} className="flex items-center gap-3 rounded-2xl bg-[#F7FAFC] p-3 transition hover:bg-[#ECF8FC]">
+                    {space.images?.[0] && <img src={space.images[0]} alt={space.name} className="h-14 w-16 rounded-2xl object-cover" />}
                     <div>
                       <p className="font-black text-[#0F2A43]">{space.name}</p>
-                      <p className="text-sm text-slate-500">{space.city} · {space.rating}</p>
+                      <p className="text-sm text-slate-500">{space.city} · Favori</p>
                     </div>
                   </Link>
-                )) : (
+                );
+                }) : (
                   <EmptyState title="Aucun favori enregistré." text="Ajoutez vos premiers espaces favoris pour les retrouver rapidement." />
                 )}
               </div>

@@ -30,6 +30,7 @@ import NotFound from "./pages/NotFound";
 import Signup from "./pages/Signup";
 import BusinessDashboard from "./pages/BusinessDashboard";
 import LegalPage from "./pages/LegalPage";
+import AuthCallback from "./pages/AuthCallback";
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/inscription" element={<Signup />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/reservation" element={<Reservation />} />
         <Route path="/offres" element={<Offres />} />
         <Route path="/events" element={<Events />} />

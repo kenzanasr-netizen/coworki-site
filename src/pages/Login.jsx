@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Mail, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
 import logo from "../assets/logo-coworki.png";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 import { loginWithCredentials, roleHomeRoutes } from "../data/mockAuth";
 
 function Login() {
@@ -81,6 +82,12 @@ function Login() {
           </div>
 
           <form onSubmit={submitLogin} className="space-y-5">
+            <GoogleAuthButton onError={setError} />
+            <div className="flex items-center gap-3">
+              <span className="h-px flex-1 bg-slate-200" />
+              <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">ou</span>
+              <span className="h-px flex-1 bg-slate-200" />
+            </div>
             <div>
               <label className="mb-2 block text-sm font-black text-[#0F2A43]">Email</label>
               <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-[#F7FAFC] px-4 py-3 focus-within:border-[#0F6C8D]">

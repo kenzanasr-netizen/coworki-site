@@ -1,4 +1,5 @@
 import logo from "../assets/logo-coworki.png";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import ImageCarousel from "../components/ImageCarousel";
@@ -8,6 +9,8 @@ import HeaderActions from "../components/HeaderActions";
 import Breadcrumb from "../components/Breadcrumb";
 import SEO from "../components/SEO";
 import { spacesData } from "../data/spacesData";
+import { apiFetch } from "../data/apiClient";
+import { getMockSession } from "../data/mockAuth";
 import {
   ArrowLeft,
   MapPin,
@@ -31,6 +34,9 @@ function SpaceDetails() {
   const { id } = useParams();
 
   const space = spacesData.find((item) => item.id === id) || spacesData[0];
+  const session = getMockSession();
+  const [reviews, setReviews] = useState([]);
+  const [favoriteMessage, setFavoriteMessage] = useState("");
   const images = space.images || [];
   const gallery = images.slice(1);
   const basePrice = Number.parseInt(space.price, 10) || 15;
@@ -49,6 +55,42 @@ function SpaceDetails() {
     Climatisation: <Snowflake className="h-5 w-5" />,
     Networking: <Users className="h-5 w-5" />,
     Events: <CalendarDays className="h-5 w-5" />,
+  };
+
+  useEffect(() => {
+    let active = true;
+    apiFetch(`/api/spaces/${space.id}/reviews`)
+      .then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (active && response.ok) setReviews(data.reviews || []);
+      })
+      .catch(() => {
+        if (active) setReviews([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [space.id]);
+
+  const addFavorite = async () => {
+    setFavoriteMessage("");
+    if (!session) {
+      setFavoriteMessage("Connectez-vous pour ajouter cet espace aux favoris.");
+      return;
+    }
+
+    try {
+      const response = await apiFetch("/api/favorites", {
+        method: "POST",
+        body: JSON.stringify({ spaceId: space.id, space }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || "Impossible d’ajouter aux favoris.");
+      setFavoriteMessage("Espace ajouté à vos favoris.");
+    } catch (error) {
+      setFavoriteMessage(error.message || "Impossible d’ajouter aux favoris.");
+    }
   };
 
   return (
@@ -331,20 +373,17 @@ function SpaceDetails() {
             </h2>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {[
-                [
-                  "Très bon espace, calme et agréable pour travailler.",
-                  "Étudiant",
-                ],
-                [
-                  "Réservation simple et espace bien équipé.",
-                  "Freelance",
-                ],
-              ].map(([comment, author]) => (
+              {(reviews.length
+                ? reviews.map((review) => [review.comment || "Très bonne expérience.", review.user?.fullName || "Utilisateur CoWorki", review.rating])
+                : [
+                    ["Très bon espace, calme et agréable pour travailler.", "Étudiant", 5],
+                    ["Réservation simple et espace bien équipé.", "Freelance", 5],
+                  ]
+              ).map(([comment, author, rating]) => (
                 <div key={author} className="rounded-3xl bg-[#F7FAFC] p-5">
                   <div className="mb-3 flex gap-1 text-[#D9A441]">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="h-4 w-4 fill-current" />
+                      <Star key={i} className={`h-4 w-4 ${i <= rating ? "fill-current" : ""}`} />
                     ))}
                   </div>
 
@@ -368,10 +407,11 @@ function SpaceDetails() {
               </p>
             </div>
 
-            <button className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FBEFF3] text-[#7A1E3A] transition hover:scale-105">
+            <button onClick={addFavorite} className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FBEFF3] text-[#7A1E3A] transition hover:scale-105" aria-label="Ajouter aux favoris">
               <Heart className="h-5 w-5" />
             </button>
           </div>
+          {favoriteMessage && <p className="mt-3 rounded-2xl bg-[#F7FAFC] px-4 py-3 text-xs font-black text-[#0F6C8D]">{favoriteMessage}</p>}
 
           <div className="mt-6 space-y-4">
             <div>

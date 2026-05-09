@@ -5,25 +5,63 @@ import { PageHero, PageShell, StatusBadge } from "../components/SiteLayout";
 import { spacesData } from "../data/spacesData";
 import { matchingProfiles } from "../data/platformData";
 import { getMockSession } from "../data/mockAuth";
+import { apiFetch } from "../data/apiClient";
 
 function Booking() {
   const { id } = useParams();
   const space = spacesData.find((item) => item.id === id) || spacesData[0];
   const [formula, setFormula] = useState("2h");
   const [people, setPeople] = useState(1);
+  const [date, setDate] = useState("");
+  const [slot, setSlot] = useState("09:00 - 11:00");
+  const [spaceType, setSpaceType] = useState("Poste individuel");
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const session = getMockSession();
 
   const base = Number.parseInt(space.price, 10) || 15;
   const prices = { "2h": 15, "4h": 25, day: 40 };
   const total = Math.round((prices[formula] || base) + Math.max(0, people - 1) * 3);
 
+  const confirmReservation = async () => {
+    setError("");
+    if (!date) {
+      setError("Choisissez une date avant de confirmer.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await apiFetch("/api/reservations", {
+        method: "POST",
+        body: JSON.stringify({
+          spaceId: space.id,
+          space,
+          date,
+          duration: formula,
+          total,
+          people,
+          slot,
+          spaceType,
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || "Impossible d’enregistrer la réservation.");
+      setSuccess(true);
+    } catch (reservationError) {
+      setError(reservationError.message || "Impossible d’enregistrer la réservation.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <PageShell active="/spaces">
       <PageHero
         eyebrow="Tunnel de réservation"
         title={`Réserver chez ${space.name}`}
-        text="Choisis ton créneau, ton type d’espace et confirme une réservation simulée pour le prototype CoWorki."
+        text="Choisis ton créneau, ton type d’espace et confirme une réservation enregistrée dans ton espace CoWorki."
       />
 
       <main className="mx-auto grid max-w-7xl gap-8 px-6 py-14 lg:grid-cols-[1fr_380px]">
@@ -90,9 +128,9 @@ function Booking() {
             </div>
           ) : (
             <div className="grid gap-5 md:grid-cols-2">
-              <Field label="Date" type="date" icon={<CalendarDays />} />
-              <Field label="Créneau horaire" as="select" icon={<Clock3 />} options={["09:00 - 11:00", "11:00 - 13:00", "14:00 - 18:00"]} />
-              <Field label="Type d’espace" as="select" icon={<Users />} options={["Poste individuel", "Salle de réunion", "Espace événementiel"]} />
+              <Field label="Date" type="date" icon={<CalendarDays />} value={date} onChange={setDate} />
+              <Field label="Créneau horaire" as="select" icon={<Clock3 />} value={slot} onChange={setSlot} options={["09:00 - 11:00", "11:00 - 13:00", "14:00 - 18:00"]} />
+              <Field label="Type d’espace" as="select" icon={<Users />} value={spaceType} onChange={setSpaceType} options={["Poste individuel", "Salle de réunion", "Espace événementiel"]} />
               <div>
                 <label className="mb-2 block text-sm font-black text-[#0F2A43]">Nombre de personnes</label>
                 <input value={people} onChange={(e) => setPeople(Number(e.target.value))} min="1" type="number" className="w-full rounded-2xl border border-slate-200 bg-[#F7FAFC] px-4 py-3 font-bold outline-none focus:border-[#0F6C8D]" />
@@ -124,26 +162,27 @@ function Booking() {
             <p className="mt-2 text-4xl font-black text-[#7A1E3A]">{total} TND</p>
           </div>
           {!success && (
-            <button onClick={() => setSuccess(true)} className="mt-6 w-full rounded-2xl bg-[#7A1E3A] px-5 py-4 text-sm font-black text-white transition hover:bg-[#64172F]">
-              Confirmer la réservation
+            <button disabled={loading} onClick={confirmReservation} className="mt-6 w-full rounded-2xl bg-[#7A1E3A] px-5 py-4 text-sm font-black text-white transition hover:bg-[#64172F] disabled:cursor-not-allowed disabled:opacity-60">
+              {loading ? "Enregistrement..." : "Confirmer la réservation"}
             </button>
           )}
+          {error && <p className="mt-4 rounded-2xl bg-[#FBEFF3] px-4 py-3 text-sm font-black text-[#7A1E3A]">{error}</p>}
         </aside>
       </main>
     </PageShell>
   );
 }
 
-function Field({ label, type = "text", as, options = [], icon }) {
+function Field({ label, type = "text", as, options = [], icon, value, onChange }) {
   return (
     <div>
       <label className="mb-2 block text-sm font-black text-[#0F2A43]">{label}</label>
       <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-[#F7FAFC] px-4 py-3 focus-within:border-[#0F6C8D]">
         <span className="text-[#0F6C8D] [&_svg]:h-5 [&_svg]:w-5">{icon}</span>
         {as === "select" ? (
-          <select className="w-full bg-transparent font-bold outline-none">{options.map((option) => <option key={option}>{option}</option>)}</select>
+          <select value={value} onChange={(event) => onChange?.(event.target.value)} className="w-full bg-transparent font-bold outline-none">{options.map((option) => <option key={option}>{option}</option>)}</select>
         ) : (
-          <input type={type} className="w-full bg-transparent font-bold outline-none" />
+          <input value={value} onChange={(event) => onChange?.(event.target.value)} type={type} className="w-full bg-transparent font-bold outline-none" />
         )}
       </div>
     </div>
