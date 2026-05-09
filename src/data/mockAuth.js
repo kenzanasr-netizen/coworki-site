@@ -1,5 +1,7 @@
 const USERS_KEY = "coworki-users";
 const SESSION_KEY = "coworki-session-user-id";
+const SESSION_PROFILE_KEY = "coworki-session-profile";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
 const roleLabels = {
   user: "Utilisateur",
@@ -16,6 +18,9 @@ export const roleHomeRoutes = {
 };
 
 export function getMockSession() {
+  const serverSession = getStoredServerSession();
+  if (serverSession) return serverSession;
+
   seedAdminAccount();
   const sessionUserId = localStorage.getItem(SESSION_KEY);
   if (!sessionUserId) return null;
@@ -30,87 +35,51 @@ export function getMockSession() {
 }
 
 export async function createAccount(role, profile) {
-  seedAdminAccount();
-  const users = getUsers();
-  const email = normalizeEmail(profile.email);
-
-  if (!email) {
-    throw new Error("Veuillez saisir une adresse email valide.");
-  }
-
-  if (users.some((user) => normalizeEmail(user.email) === email)) {
-    throw new Error("Un compte existe déjà avec cette adresse email.");
-  }
-
-  if (!profile.password || profile.password.length < 8) {
-    throw new Error("Le mot de passe doit contenir au moins 8 caractères.");
-  }
-
-  const now = new Date().toISOString();
-  const user = {
-    id: crypto.randomUUID(),
-    fullName: profile.name || profile.fullName || profile.company || profile.space || "Membre CoWorki",
-    name: profile.name || profile.fullName || profile.company || profile.space || "Membre CoWorki",
-    email,
-    phone: profile.phone || "",
-    role,
-    status: roleLabels[role],
-    city: profile.city || "",
-    roleLabel: profile.roleLabel || roleLabels[role],
-    interests: profile.interests || [],
-    points: 0,
-    hasConfirmedBooking: false,
-    company: profile.company || "",
-    space: profile.space || "",
-    validationStatus: role === "partner" ? "Espace en attente de validation" : "",
-    profile: {
-      bio: "",
-      occupation: profile.roleLabel || "",
-      city: profile.city || "",
+  const response = await apiFetch("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({
+      fullName: profile.name || profile.fullName || profile.company || profile.space,
+      email: profile.email,
+      password: profile.password,
+      phone: profile.phone,
+      role,
       interests: profile.interests || [],
-    },
-    partner:
-      role === "partner"
-        ? {
-            companyName: profile.space || profile.name,
-            status: "PENDING",
-            services: profile.services || [],
-            spaceTypes: profile.spaceTypes || [],
-          }
-        : null,
-    companyProfile:
-      role === "business"
-        ? {
-            companyName: profile.company || profile.name,
-            need: profile.need || "",
-          }
-        : null,
-    passwordHash: await hashPassword(profile.password),
-    createdAt: now,
-    updatedAt: now,
-  };
+      city: profile.city,
+      occupation: profile.roleLabel,
+      companyName: profile.company,
+      spaceName: profile.space,
+    }),
+  });
 
-  saveUsers([...users, user]);
-  setSessionUser(user.id);
-  return toPublicSession(user);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || "Impossible de créer le compte.");
+  }
+
+  const session = toClientSession(data.user, role);
+  setServerSession(session);
+  return session;
 }
 
 export async function loginWithCredentials(email, password) {
-  seedAdminAccount();
-  const normalizedEmail = normalizeEmail(email);
-  const passwordHash = await hashPassword(password || "");
-  const user = getUsers().find((item) => normalizeEmail(item.email) === normalizedEmail);
+  const response = await apiFetch("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
 
-  if (!user || user.passwordHash !== passwordHash) {
-    throw new Error("Email ou mot de passe incorrect.");
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || "Email ou mot de passe incorrect.");
   }
 
-  setSessionUser(user.id);
-  return toPublicSession(user);
+  const session = toClientSession(data.user);
+  setServerSession(session);
+  return session;
 }
 
 export function clearMockSession() {
   localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(SESSION_PROFILE_KEY);
   window.dispatchEvent(new Event("coworki-auth-change"));
 }
 
@@ -166,21 +135,65 @@ function saveUsers(users) {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
-function setSessionUser(userId) {
-  localStorage.setItem(SESSION_KEY, userId);
+function setServerSession(session) {
+  localStorage.setItem(SESSION_KEY, session.id);
+  localStorage.setItem(SESSION_PROFILE_KEY, JSON.stringify(session));
   window.dispatchEvent(new Event("coworki-auth-change"));
 }
 
-function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
+async function apiFetch(path, options = {}) {
+  try {
+    return await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+    });
+  } catch {
+    throw new Error("Serveur d’authentification indisponible. Lancez npm run dev puis réessayez.");
+  }
 }
 
-async function hashPassword(password) {
-  const data = new TextEncoder().encode(password);
-  const digest = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(digest))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
+function getStoredServerSession() {
+  try {
+    const stored = localStorage.getItem(SESSION_PROFILE_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+}
+
+function toClientSession(user, fallbackRole) {
+  const role = normalizeRole(user.role || fallbackRole);
+  return {
+    id: user.id,
+    fullName: user.fullName,
+    name: user.fullName,
+    email: user.email,
+    phone: user.phone || "",
+    role,
+    status: roleLabels[role],
+    city: user.profile?.city || "",
+    roleLabel: user.profile?.occupation || roleLabels[role],
+    interests: user.profile?.interests?.length ? user.profile.interests : user.interests || [],
+    points: 0,
+    hasConfirmedBooking: false,
+    company: user.company?.companyName || "",
+    space: user.partner?.companyName || "",
+    validationStatus: user.partner?.status === "PENDING" ? "Espace en attente de validation" : "",
+    profile: user.profile || null,
+    partner: user.partner || null,
+    companyProfile: user.company || null,
+  };
+}
+
+function normalizeRole(role) {
+  const value = String(role || "").toUpperCase();
+  if (value === "PARTNER") return "partner";
+  if (value === "COMPANY") return "business";
+  if (value === "ADMIN") return "admin";
+  return "user";
 }
 
 function seedAdminAccount() {
