@@ -1,211 +1,114 @@
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowRight, CheckCircle2, Mail, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
 import logo from "../assets/logo-coworki.png";
-import {
-  Mail,
-  LockKeyhole,
-  ArrowRight,
-  ShieldCheck,
-  Sparkles,
-  Users,
-  Building2,
-} from "lucide-react";
+import { loginWithCredentials, roleHomeRoutes } from "../data/mockAuth";
 
 function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: Implement login logic
-    console.log("Login attempt:", { email, password });
+  const submitLogin = async (event) => {
+    event.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const session = await loginWithCredentials(email, password);
+      navigate(roleHomeRoutes[session.role]);
+    } catch (authError) {
+      setError(authError.message || "Impossible de se connecter.");
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <div className="min-h-screen overflow-hidden bg-gradient-to-br from-[#ECF8FC] via-white to-[#FBEFF3] text-slate-950">
-      {/* BACKGROUND */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute left-[-120px] top-[-120px] h-[420px] w-[420px] rounded-full bg-[#9ED8E8]/50 blur-3xl" />
-        <div className="absolute bottom-[-160px] right-[-120px] h-[480px] w-[480px] rounded-full bg-[#7A1E3A]/20 blur-3xl" />
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
-          className="absolute -right-40 top-16 h-96 w-96 rounded-[5rem] border border-[#0F6C8D]/20 bg-white/20 backdrop-blur"
-        />
-        <motion.div
-          animate={{ y: [0, -25, 0], rotate: [0, -3, 0] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute left-16 top-40 hidden h-32 w-32 rounded-full bg-[#7A1E3A]/10 md:block"
-        />
-      </div>
-
-      {/* HEADER */}
       <header className="relative z-10">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           <Link to="/" className="flex items-center gap-4">
             <img src={logo} alt="Logo CoWorki" className="h-20 w-auto" />
           </Link>
-
-          <Link
-            to="/"
-            className="rounded-full border border-slate-200 bg-white/80 px-5 py-3 text-sm font-black text-[#0F2A43] shadow-sm backdrop-blur transition hover:text-[#0F6C8D]"
-          >
-            Retour accueil
+          <Link to="/signup" className="rounded-full bg-[#7A1E3A] px-5 py-3 text-sm font-black text-white shadow-xl shadow-[#7A1E3A]/20">
+            Créer un compte
           </Link>
         </div>
       </header>
 
-      {/* CONTENT */}
-      <main className="relative z-10 mx-auto grid min-h-[calc(100vh-120px)] max-w-7xl items-center gap-12 px-6 pb-16 lg:grid-cols-[0.95fr_1.05fr]">
-        {/* LEFT */}
-        <motion.section
-          initial={{ opacity: 0, x: -35 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7 }}
-          className="hidden lg:block"
-        >
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#9ED8E8]/80 bg-white/70 px-4 py-2 text-sm font-black text-[#0F6C8D] shadow-sm backdrop-blur">
+      <main className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-6 pb-20 pt-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <motion.section initial={{ opacity: 0, x: -24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.65 }}>
+          <p className="inline-flex items-center gap-2 rounded-full border border-[#9ED8E8]/80 bg-white/70 px-4 py-2 text-sm font-black text-[#0F6C8D] shadow-sm backdrop-blur">
             <Sparkles className="h-4 w-4" />
-            Votre espace CoWorki
-          </div>
-
-          <h1 className="max-w-xl text-4xl font-black leading-[0.95] tracking-[-0.05em] text-[#0F2A43] md:text-6xl">
-            Connectez-vous à votre univers de travail.
+            Accès sécurisé CoWorki
+          </p>
+          <h1 className="mt-6 max-w-xl text-5xl font-black tracking-[-0.05em] text-[#0F2A43] md:text-7xl">
+            Connexion à CoWorki
           </h1>
-
-          <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">
-            Accédez à vos réservations, vos espaces favoris, vos demandes B2B ou votre tableau de bord partenaire selon votre profil.
+          <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
+            Connectez-vous pour accéder à votre espace utilisateur, entreprise, partenaire ou administration.
           </p>
 
-          <div className="mt-10 grid max-w-xl gap-4">
+          <div className="mt-8 grid max-w-xl gap-3 sm:grid-cols-2">
             {[
-              [
-                <Users className="h-6 w-6" />,
-                "Utilisateur final",
-                "Retrouvez vos réservations, favoris et recommandations.",
-              ],
-              [
-                <Building2 className="h-6 w-6" />,
-                "Gérant d’espace",
-                "Suivez vos réservations, vos revenus et vos disponibilités.",
-              ],
-              [
-                <ShieldCheck className="h-6 w-6" />,
-                "Accès sécurisé",
-                "Une interface claire pour chaque type de compte.",
-              ],
-            ].map(([icon, title, text]) => (
-              <div
-                key={title}
-                className="flex items-start gap-4 rounded-[1.7rem] border border-white/80 bg-white/70 p-5 shadow-sm backdrop-blur"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ECF8FC] text-[#0F6C8D]">
-                  {icon}
-                </div>
-
-                <div>
-                  <p className="font-black text-[#0F2A43]">{title}</p>
-                  <p className="mt-1 leading-6 text-slate-600">{text}</p>
-                </div>
+              "Accès sécurisé",
+              "Réservations synchronisées",
+              "Profil personnalisé",
+              "Données protégées",
+            ].map((item) => (
+              <div key={item} className="flex items-center gap-3 rounded-2xl bg-white/75 p-4 shadow-sm ring-1 ring-white">
+                <CheckCircle2 className="h-5 w-5 text-[#0F6C8D]" />
+                <span className="text-sm font-black text-[#0F2A43]">{item}</span>
               </div>
             ))}
           </div>
         </motion.section>
 
-        {/* FORM */}
-        <motion.section
-          initial={{ opacity: 0, y: 35, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-          className="mx-auto w-full max-w-xl"
-        >
-          <div className="rounded-[2.5rem] border border-white/80 bg-white/85 p-8 shadow-2xl shadow-slate-300/60 backdrop-blur-2xl md:p-10">
-            <div className="mb-8 text-center">
-              <img
-                src={logo}
-                alt="Logo CoWorki"
-                className="mx-auto h-24 w-auto"
-              />
-
-              <h2 className="mt-4 text-3xl font-black tracking-tight text-[#0F2A43] md:text-4xl">
-                Connexion
-              </h2>
-
-              <p className="mt-3 leading-7 text-slate-600">
-                Connectez-vous pour accéder à votre espace personnel.
-              </p>
-            </div>
-
-            <form className="space-y-5" onSubmit={handleSubmit}>
+        <motion.section initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65, delay: 0.1 }} className="rounded-[2.5rem] bg-white/95 p-7 shadow-2xl shadow-slate-300/60 ring-1 ring-white backdrop-blur-2xl sm:p-9">
+          <div className="mb-7 rounded-[2rem] bg-[#F7FAFC] p-5">
+            <div className="flex items-center gap-3">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ECF8FC] text-[#0F6C8D]">
+                <ShieldCheck className="h-6 w-6" />
+              </span>
               <div>
-                <label className="mb-2 block text-sm font-black text-[#0F2A43]">
-                  Adresse email
-                </label>
-
-                <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-[#F7FAFC] px-4 py-3 focus-within:border-[#0F6C8D]">
-                  <Mail className="h-5 w-5 text-[#0F6C8D]" />
-                  <input
-                    type="email"
-                    placeholder="exemple@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-transparent font-bold text-[#0F2A43] outline-none placeholder:text-slate-400"
-                  />
-                </div>
+                <h2 className="text-2xl font-black text-[#0F2A43]">Bienvenue sur CoWorki</h2>
+                <p className="mt-1 text-sm font-bold text-slate-500">Connectez-vous avec votre email et votre mot de passe.</p>
               </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-black text-[#0F2A43]">
-                  Mot de passe
-                </label>
-
-                <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-[#F7FAFC] px-4 py-3 focus-within:border-[#0F6C8D]">
-                  <LockKeyhole className="h-5 w-5 text-[#0F6C8D]" />
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-transparent font-bold text-[#0F2A43] outline-none placeholder:text-slate-400"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between gap-4 text-sm">
-                <label className="flex items-center gap-2 font-bold text-slate-600">
-                  <input type="checkbox" />
-                  Se souvenir de moi
-                </label>
-
-                <a href="#" className="font-black text-[#7A1E3A] hover:underline">
-                  Mot de passe oublié ?
-                </a>
-              </div>
-
-              <button
-                type="submit"
-                className="group w-full rounded-2xl bg-[#0F6C8D] px-6 py-4 text-sm font-black text-white shadow-xl shadow-[#0F6C8D]/20 transition hover:bg-[#0B5873]"
-              >
-                <span className="flex items-center justify-center gap-2">
-                  Se connecter
-                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-                </span>
-              </button>
-            </form>
-
-            <div className="mt-8 rounded-3xl bg-[#F7FAFC] p-5 text-center">
-              <p className="font-bold text-slate-600">
-                Vous n’avez pas encore de compte ?
-              </p>
-
-              <Link
-                to="/inscription"
-                className="mt-2 inline-block font-black text-[#7A1E3A] hover:underline"
-              >
-                Créer un compte CoWorki
-              </Link>
             </div>
           </div>
+
+          <form onSubmit={submitLogin} className="space-y-5">
+            <div>
+              <label className="mb-2 block text-sm font-black text-[#0F2A43]">Email</label>
+              <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-[#F7FAFC] px-4 py-3 focus-within:border-[#0F6C8D]">
+                <Mail className="h-5 w-5 text-[#0F6C8D]" />
+                <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" placeholder="votre@email.com" className="w-full bg-transparent font-bold outline-none" />
+              </div>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-black text-[#0F2A43]">Mot de passe</label>
+              <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-[#F7FAFC] px-4 py-3 focus-within:border-[#0F6C8D]">
+                <LockKeyhole className="h-5 w-5 text-[#0F6C8D]" />
+                <input value={password} onChange={(event) => setPassword(event.target.value)} type="password" placeholder="••••••••" className="w-full bg-transparent font-bold outline-none" />
+              </div>
+            </div>
+            {error && (
+              <p className="rounded-2xl bg-[#FBEFF3] px-4 py-3 text-sm font-black text-[#7A1E3A]">
+                {error}
+              </p>
+            )}
+            <button disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0F6C8D] px-5 py-4 text-sm font-black text-white shadow-xl shadow-[#0F6C8D]/20 disabled:cursor-not-allowed disabled:opacity-60">
+              {loading ? "Connexion..." : "Se connecter"}
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </form>
+
+          <p className="mt-5 text-center text-sm font-bold text-slate-600">
+            Pas encore de compte ? <Link to="/signup" className="font-black text-[#7A1E3A]">Créer un compte</Link>
+          </p>
         </motion.section>
       </main>
     </div>

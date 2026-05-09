@@ -2,6 +2,8 @@ import logo from "../assets/logo-coworki.png";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import MobileNav from "../components/MobileNav";
+import DesktopNav from "../components/DesktopNav";
+import HeaderActions from "../components/HeaderActions";
 import {
   Calendar,
   MapPin,
@@ -126,38 +128,9 @@ function Events() {
 
           <MobileNav />
 
-          <nav className="hidden items-center gap-7 rounded-full border border-slate-200/70 bg-white/80 px-6 py-3 text-sm font-black text-slate-600 shadow-sm lg:flex">
-            <Link to="/" className="transition hover:text-[#0F6C8D]">
-              Accueil
-            </Link>
-            <Link to="/spaces" className="transition hover:text-[#0F6C8D]">
-              Espaces
-            </Link>
-            <Link to="/events" className="text-[#0F6C8D]">
-              Events
-            </Link>
-            <Link to="/offres" className="transition hover:text-[#0F6C8D]">
-              Offres
-            </Link>
-            <Link to="/partenaires" className="transition hover:text-[#0F6C8D]">
-              Partenaires
-            </Link>
-          </nav>
+          <DesktopNav />
 
-          <div className="hidden items-center gap-3 md:flex">
-            <Link
-              to="/connexion"
-              className="rounded-full px-5 py-3 text-sm font-black text-[#0F2A43] transition hover:bg-white"
-            >
-              Connexion
-            </Link>
-            <Link
-              to="/inscription"
-              className="rounded-full bg-[#7A1E3A] px-6 py-3 text-sm font-black text-white shadow-xl shadow-[#7A1E3A]/25 transition hover:bg-[#64172F]"
-            >
-              Inscription
-            </Link>
-          </div>
+          <HeaderActions />
         </div>
       </header>
 
@@ -179,16 +152,16 @@ function Events() {
           >
             <p className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border border-[#9ED8E8]/70 bg-white/75 px-4 py-2 text-sm font-black text-[#0F6C8D] shadow-sm backdrop-blur">
               <Sparkles className="h-4 w-4" />
-              Networking • Formation • Business • Communauté
+              Networking • Workshops • Formations • Communauté
             </p>
 
             <h1 className="mx-auto max-w-4xl text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-[-0.04em] text-[#0F2A43]">
-              CoWorki Events
+              Découvre les événements qui font vivre la communauté CoWorki.
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-7 sm:leading-8 text-slate-600">
-              Participez à des workshops, meetups, formations et événements professionnels organisés dans les
-              meilleurs espaces de coworking en Tunisie.
+              Networking, workshops, formations et rencontres freelances dans
+              les espaces de coworking les plus dynamiques en Tunisie.
             </p>
 
             <motion.div

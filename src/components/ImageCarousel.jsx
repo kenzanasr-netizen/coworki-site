@@ -20,9 +20,9 @@ const ImageCarousel = ({ images, title, heightClass = "h-48" }) => {
           alt={title || "Image"}
           className={`w-full ${heightClass} object-cover rounded-lg hover:scale-105 transition-transform duration-300`}
         />
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0 transition-all duration-300 group-hover:bg-black/20">
           <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="bg-white bg-opacity-90 px-3 py-1 rounded-full text-sm font-medium">
+            <div className="rounded-full bg-white/90 px-3 py-1 text-sm font-medium">
               Voir l'image
             </div>
           </div>
@@ -55,12 +55,12 @@ const ImageCarousel = ({ images, title, heightClass = "h-48" }) => {
         />
 
         {/* Indicateurs d'images multiples */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+        <div className="absolute bottom-2 left-1/2 z-20 flex -translate-x-1/2 transform space-x-2">
           {images.map((_, index) => (
             <div
               key={index}
               className={`w-3 h-3 rounded-full border border-white/70 transition-all duration-300 ${
-                index === currentIndex ? "bg-white" : "bg-white bg-opacity-30"
+                index === currentIndex ? "bg-white" : "bg-white/30"
               }`}
             />
           ))}
@@ -68,29 +68,33 @@ const ImageCarousel = ({ images, title, heightClass = "h-48" }) => {
 
         {/* Flèches de navigation */}
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             prevImage();
           }}
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full p-2 shadow-lg text-gray-800 transition-all duration-300"
+          className="absolute left-2 top-1/2 z-30 -translate-y-1/2 transform rounded-full bg-white/90 p-2 text-gray-800 shadow-lg transition-all duration-300 hover:bg-white hover:scale-105"
+          aria-label="Image précédente"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
 
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             nextImage();
           }}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full p-2 shadow-lg text-gray-800 transition-all duration-300"
+          className="absolute right-2 top-1/2 z-30 -translate-y-1/2 transform rounded-full bg-white/90 p-2 text-gray-800 shadow-lg transition-all duration-300 hover:bg-white hover:scale-105"
+          aria-label="Image suivante"
         >
           <ChevronRight className="h-5 w-5" />
         </button>
 
         {/* Overlay au survol */}
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg flex items-center justify-center">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-black/0 transition-all duration-300 group-hover:bg-black/20">
           <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="bg-white bg-opacity-90 px-3 py-1 rounded-full text-sm font-medium">
+            <div className="rounded-full bg-white/90 px-3 py-1 text-sm font-medium">
               {images.length} images - Cliquer pour agrandir
             </div>
           </div>
@@ -104,7 +108,7 @@ const ImageCarousel = ({ images, title, heightClass = "h-48" }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
             onClick={() => setIsOpen(false)}
           >
             <motion.div
@@ -116,6 +120,7 @@ const ImageCarousel = ({ images, title, heightClass = "h-48" }) => {
             >
               {/* Bouton fermer */}
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
                 className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
               >
@@ -133,15 +138,19 @@ const ImageCarousel = ({ images, title, heightClass = "h-48" }) => {
               {images.length > 1 && (
                 <>
                   <button
+                    type="button"
                     onClick={prevImage}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 text-white transition-all duration-300"
+                    className="absolute left-4 top-1/2 z-20 -translate-y-1/2 transform rounded-full bg-white/20 p-2 text-white transition-all duration-300 hover:bg-white/30"
+                    aria-label="Image précédente"
                   >
                     <ChevronLeft className="h-6 w-6" />
                   </button>
 
                   <button
+                    type="button"
                     onClick={nextImage}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 text-white transition-all duration-300"
+                    className="absolute right-4 top-1/2 z-20 -translate-y-1/2 transform rounded-full bg-white/20 p-2 text-white transition-all duration-300 hover:bg-white/30"
+                    aria-label="Image suivante"
                   >
                     <ChevronRight className="h-6 w-6" />
                   </button>
@@ -150,17 +159,18 @@ const ImageCarousel = ({ images, title, heightClass = "h-48" }) => {
                   <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
                     {images.map((_, index) => (
                       <button
+                        type="button"
                         key={index}
                         onClick={() => setCurrentIndex(index)}
                         className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                          index === currentIndex ? "bg-white" : "bg-white bg-opacity-50"
+                          index === currentIndex ? "bg-white" : "bg-white/50"
                         }`}
                       />
                     ))}
                   </div>
 
                   {/* Compteur */}
-                  <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+                  <div className="absolute bottom-4 right-4 rounded-full bg-black/50 px-3 py-1 text-sm text-white">
                     {currentIndex + 1} / {images.length}
                   </div>
                 </>

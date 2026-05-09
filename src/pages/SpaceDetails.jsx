@@ -3,6 +3,10 @@ import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import ImageCarousel from "../components/ImageCarousel";
 import MobileNav from "../components/MobileNav";
+import DesktopNav from "../components/DesktopNav";
+import HeaderActions from "../components/HeaderActions";
+import Breadcrumb from "../components/Breadcrumb";
+import SEO from "../components/SEO";
 import { spacesData } from "../data/spacesData";
 import {
   ArrowLeft,
@@ -29,6 +33,12 @@ function SpaceDetails() {
   const space = spacesData.find((item) => item.id === id) || spacesData[0];
   const images = space.images || [];
   const gallery = images.slice(1);
+  const basePrice = Number.parseInt(space.price, 10) || 15;
+  const formulas = [
+    ["2h", `${basePrice} TND`],
+    ["4h", `${Math.round(basePrice * 1.7)} TND`],
+    ["Journée", `${Math.round(basePrice * 2.5)} TND`],
+  ];
 
   const serviceIcons = {
     "Wi-Fi": <Wifi className="h-5 w-5" />,
@@ -43,6 +53,10 @@ function SpaceDetails() {
 
   return (
     <div className="min-h-screen bg-[#F7FAFC] text-slate-950">
+      <SEO
+        title={`${space.name} - Détails et réservation | CoWorki`}
+        description={`Consultez les photos, services, tarifs et disponibilités de ${space.name} sur CoWorki.`}
+      />
       {/* HEADER */}
       <header className="sticky top-0 z-50 border-b border-white/40 bg-white/80 backdrop-blur-2xl">
         <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
@@ -52,43 +66,9 @@ function SpaceDetails() {
 
           <MobileNav />
 
-          <nav className="hidden items-center gap-7 rounded-full border border-slate-200/70 bg-white/80 px-6 py-3 text-sm font-black text-slate-600 shadow-sm lg:flex">
-            <Link to="/" className="transition hover:text-[#0F6C8D]">
-              Accueil
-            </Link>
+          <DesktopNav />
 
-            <Link to="/spaces" className="text-[#0F6C8D]">
-              Espaces
-            </Link>
-
-            <Link to="/offres" className="transition hover:text-[#0F6C8D]">
-              Offres
-            </Link>
-
-            <Link to="/events" className="transition hover:text-[#0F6C8D]">
-              Events
-            </Link>
-
-            <Link to="/partenaires" className="transition hover:text-[#0F6C8D]">
-              Partenaires
-            </Link>
-          </nav>
-
-          <div className="hidden items-center gap-3 md:flex">
-            <Link
-  to="/connexion"
-  className="rounded-full px-5 py-3 text-sm font-black text-[#0F2A43] transition hover:bg-white"
->
-  Connexion
-</Link>
-
-           <Link
-  to="/inscription"
-  className="rounded-full bg-[#7A1E3A] px-6 py-3 text-sm font-black text-white shadow-xl shadow-[#7A1E3A]/25 transition hover:bg-[#64172F]"
->
-  Inscription
-</Link>
-          </div>
+          <HeaderActions />
         </div>
       </header>
 
@@ -108,9 +88,17 @@ function SpaceDetails() {
         />
 
         <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
+          <Breadcrumb
+            items={[
+              { label: "Accueil", path: "/" },
+              { label: "Espaces", path: "/spaces" },
+              { label: space.name },
+            ]}
+          />
+
           <Link
             to="/spaces"
-            className="mb-8 inline-flex items-center gap-2 rounded-full bg-white/80 px-5 py-3 text-sm font-black text-[#0F2A43] shadow-sm transition hover:text-[#0F6C8D]"
+            className="mb-8 mt-5 inline-flex items-center gap-2 rounded-full bg-white/80 px-5 py-3 text-sm font-black text-[#0F2A43] shadow-sm transition hover:text-[#0F6C8D]"
           >
             <ArrowLeft className="h-4 w-4" />
             Retour aux espaces
@@ -160,26 +148,14 @@ function SpaceDetails() {
               </p>
 
               <div className="mt-8 grid max-w-2xl gap-4 sm:grid-cols-3">
-                <div className="rounded-3xl bg-white/80 p-5 shadow-sm ring-1 ring-white/80">
-                  <p className="text-sm font-black text-slate-400">Prix</p>
-                  <p className="mt-1 text-2xl font-black text-[#7A1E3A]">
-                    {space.price}
-                  </p>
-                </div>
-
-                <div className="rounded-3xl bg-white/80 p-5 shadow-sm ring-1 ring-white/80">
-                  <p className="text-sm font-black text-slate-400">Capacité</p>
-                  <p className="mt-1 text-xl font-black text-[#0F2A43]">
-                    {space.capacity}
-                  </p>
-                </div>
-
-                <div className="rounded-3xl bg-white/80 p-5 shadow-sm ring-1 ring-white/80">
-                  <p className="text-sm font-black text-slate-400">Ville</p>
-                  <p className="mt-1 text-xl font-black text-[#0F6C8D]">
-                    {space.city}
-                  </p>
-                </div>
+                {formulas.map(([label, price]) => (
+                  <div key={label} className="rounded-3xl bg-white/80 p-5 shadow-sm ring-1 ring-white/80">
+                    <p className="text-sm font-black text-slate-400">Formule {label}</p>
+                    <p className="mt-1 text-2xl font-black text-[#7A1E3A]">
+                      {price}
+                    </p>
+                  </div>
+                ))}
               </div>
             </motion.div>
 
@@ -309,6 +285,45 @@ function SpaceDetails() {
             </div>
           </div>
 
+          {/* WHY CHOOSE */}
+          <div className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-100">
+            <h2 className="text-2xl font-black text-[#0F2A43]">
+              Pourquoi choisir cet espace ?
+            </h2>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {[
+                [
+                  <MapPin className="h-5 w-5" />,
+                  "Bien situé",
+                  `Un espace facile à repérer à ${space.city}, adapté aux journées de travail et aux réunions.`,
+                ],
+                [
+                  <CheckCircle2 className="h-5 w-5" />,
+                  "Services utiles",
+                  "Wi-Fi, confort, équipements et ambiance professionnelle pour rester productif.",
+                ],
+                [
+                  <ShieldCheck className="h-5 w-5" />,
+                  "Choix rassurant",
+                  "Les informations clés sont regroupées pour comparer et réserver plus simplement.",
+                ],
+              ].map(([icon, title, text]) => (
+                <motion.div
+                  key={title}
+                  whileHover={{ y: -6 }}
+                  className="rounded-3xl bg-[#F7FAFC] p-5"
+                >
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ECF8FC] text-[#0F6C8D]">
+                    {icon}
+                  </div>
+                  <h3 className="font-black text-[#0F2A43]">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{text}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
           {/* REVIEWS */}
           <div className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-100">
             <h2 className="text-2xl font-black text-[#0F2A43]">
@@ -393,7 +408,7 @@ function SpaceDetails() {
             </div>
 
             <Link
-  to="/reservation"
+  to={`/booking/${space.id}`}
   className="block w-full rounded-2xl bg-[#0F6C8D] px-5 py-4 text-center text-sm font-black text-white shadow-xl shadow-[#0F6C8D]/20 transition hover:bg-[#0B5873]"
 >
   Réserver maintenant

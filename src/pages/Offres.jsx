@@ -2,6 +2,8 @@ import logo from "../assets/logo-coworki.png";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import MobileNav from "../components/MobileNav";
+import DesktopNav from "../components/DesktopNav";
+import HeaderActions from "../components/HeaderActions";
 import {
   ArrowRight,
   CheckCircle2,
@@ -298,38 +300,9 @@ function Offres() {
 
           <MobileNav />
 
-          <nav className="hidden items-center gap-7 rounded-full border border-slate-200/70 bg-white/80 px-6 py-3 text-sm font-black text-slate-600 shadow-sm lg:flex">
-            <Link to="/" className="transition hover:text-[#0F6C8D]">
-              Accueil
-            </Link>
-            <Link to="/spaces" className="transition hover:text-[#0F6C8D]">
-              Espaces
-            </Link>
-            <Link to="/offres" className="text-[#0F6C8D]">
-              Offres
-            </Link>
-            <Link to="/events" className="transition hover:text-[#0F6C8D]">
-              Events
-            </Link>
-            <Link to="/partenaires" className="transition hover:text-[#0F6C8D]">
-              Partenaires
-            </Link>
-          </nav>
+          <DesktopNav />
 
-          <div className="hidden items-center gap-3 md:flex">
-            <Link
-              to="/connexion"
-              className="rounded-full px-5 py-3 text-sm font-black text-[#0F2A43] transition hover:bg-white"
-            >
-              Connexion
-            </Link>
-            <Link
-              to="/inscription"
-              className="rounded-full bg-[#7A1E3A] px-6 py-3 text-sm font-black text-white shadow-xl shadow-[#7A1E3A]/25 transition hover:bg-[#64172F]"
-            >
-              Inscription
-            </Link>
-          </div>
+          <HeaderActions />
         </div>
       </header>
 

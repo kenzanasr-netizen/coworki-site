@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import logo from "../assets/logo-coworki.png";
 import MobileNav from "../components/MobileNav";
+import DesktopNav from "../components/DesktopNav";
+import HeaderActions from "../components/HeaderActions";
 import { ArrowLeft, CalendarDays, Handshake, BadgePercent } from "lucide-react";
 
 const pageContent = {
@@ -35,23 +37,8 @@ function ComingSoon({ type }) {
 
           <MobileNav />
 
-          <nav className="hidden items-center gap-7 rounded-full border border-slate-200/70 bg-white/80 px-6 py-3 text-sm font-black text-slate-600 shadow-sm lg:flex">
-            <Link to="/" className="transition hover:text-[#0F6C8D]">
-              Accueil
-            </Link>
-            <Link to="/spaces" className="transition hover:text-[#0F6C8D]">
-              Espaces
-            </Link>
-            <Link to="/offres" className={type === "offres" ? "text-[#0F6C8D]" : "transition hover:text-[#0F6C8D]"}>
-              Offres
-            </Link>
-            <Link to="/events" className={type === "events" ? "text-[#0F6C8D]" : "transition hover:text-[#0F6C8D]"}>
-              Events
-            </Link>
-            <Link to="/partenaires" className={type === "partenaires" ? "text-[#0F6C8D]" : "transition hover:text-[#0F6C8D]"}>
-              Partenaires
-            </Link>
-          </nav>
+          <DesktopNav />
+          <HeaderActions />
         </div>
       </header>
 

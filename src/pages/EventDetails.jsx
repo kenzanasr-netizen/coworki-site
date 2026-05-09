@@ -1,12 +1,16 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { eventsData } from "../data/eventsData";
 import logo from "../assets/logo-coworki.png";
 import MobileNav from "../components/MobileNav";
+import DesktopNav from "../components/DesktopNav";
+import HeaderActions from "../components/HeaderActions";
 import { ArrowLeft, Calendar, Clock, MapPin, Sparkles } from "lucide-react";
 
 function EventDetails() {
   const { id } = useParams();
+  const [registered, setRegistered] = useState(false);
   const eventId = Number(id);
   const event = eventsData.find((item) => item.id === eventId);
 
@@ -42,20 +46,8 @@ function EventDetails() {
             <img src={logo} alt="Logo CoWorki" className="h-16 w-auto sm:h-20 md:h-24" />
           </Link>
           <MobileNav />
-          <nav className="hidden items-center gap-7 rounded-full border border-slate-200/70 bg-white/80 px-6 py-3 text-sm font-black text-slate-600 shadow-sm lg:flex">
-            <Link to="/" className="transition hover:text-[#0F6C8D]">
-              Accueil
-            </Link>
-            <Link to="/spaces" className="transition hover:text-[#0F6C8D]">
-              Espaces
-            </Link>
-            <Link to="/events" className="text-[#0F6C8D]">
-              Events
-            </Link>
-            <Link to="/offres" className="transition hover:text-[#0F6C8D]">
-              Offres
-            </Link>
-          </nav>
+          <DesktopNav />
+          <HeaderActions />
         </div>
       </header>
 
@@ -112,8 +104,8 @@ function EventDetails() {
                   <p className="mt-3 text-lg font-black text-[#0F2A43]">{event.price}</p>
                 </div>
                 <div className="rounded-3xl bg-white p-6 text-center shadow-sm">
-                  <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Inscrits</p>
-                  <p className="mt-3 text-lg font-black text-[#0F2A43]">{event.attendees || "—"}</p>
+                  <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Places</p>
+                  <p className="mt-3 text-lg font-black text-[#0F2A43]">{event.seats || 25} disponibles</p>
                 </div>
               </div>
             </div>
@@ -127,6 +119,27 @@ function EventDetails() {
                 <span key={tag} className="inline-flex items-center rounded-full bg-[#F7FAFC] px-4 py-3 text-sm font-black text-[#0F6C8D]">
                   #{tag}
                 </span>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.12 }} className="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-slate-100">
+            <h2 className="text-3xl font-black text-[#0F2A43]">Programme</h2>
+            <div className="mt-6 grid gap-3">
+              {(event.program || ["Accueil", "Session principale", "Networking"]).map((item, index) => (
+                <div key={item} className="flex gap-4 rounded-3xl bg-[#F7FAFC] p-4">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0F6C8D] text-sm font-black text-white">{index + 1}</span>
+                  <p className="font-black text-[#0F2A43]">{item}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.16 }} className="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-slate-100">
+            <h2 className="text-3xl font-black text-[#0F2A43]">Intervenants</h2>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {(event.speakers || ["Invité CoWorki"]).map((speaker) => (
+                <div key={speaker} className="rounded-3xl bg-[#ECF8FC] p-5 font-black text-[#0F2A43]">{speaker}</div>
               ))}
             </div>
           </motion.div>
@@ -146,13 +159,18 @@ function EventDetails() {
                 <p className="mt-3 text-lg font-black text-[#0F2A43]">{event.location}</p>
               </div>
             </div>
-            <Link
-              to="/reservation"
-              state={{ eventId: event.id, eventTitle: event.title }}
-              className="mt-8 inline-flex w-full items-center justify-center rounded-3xl bg-[#0F6C8D] px-6 py-4 text-sm font-black text-white transition hover:bg-[#0B5873]"
-            >
-              {event.price === "Gratuit" ? "Participer maintenant" : "Réserver maintenant"}
-            </Link>
+            {registered ? (
+              <div className="mt-8 rounded-3xl bg-emerald-50 p-5 text-center font-black text-emerald-700">
+                Inscription confirmée avec succès.
+              </div>
+            ) : (
+              <button
+                onClick={() => setRegistered(true)}
+                className="mt-8 inline-flex w-full items-center justify-center rounded-3xl bg-[#0F6C8D] px-6 py-4 text-sm font-black text-white transition hover:bg-[#0B5873]"
+              >
+                S’inscrire à l’événement
+              </button>
+            )}
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="rounded-[2rem] bg-[#0F6C8D] p-8 text-white shadow-sm">

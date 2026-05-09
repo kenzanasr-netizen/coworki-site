@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import logo from "../assets/logo-coworki.png";
 import { eventsData } from "../data/eventsData";
 import MobileNav from "../components/MobileNav";
+import DesktopNav from "../components/DesktopNav";
+import HeaderActions from "../components/HeaderActions";
 import {
   ArrowLeft,
   CalendarDays,
@@ -64,27 +66,8 @@ function Reservation() {
 
           <MobileNav />
 
-          <nav className="hidden items-center gap-7 rounded-full border border-slate-200/70 bg-white/80 px-6 py-3 text-sm font-black text-slate-600 shadow-sm lg:flex">
-            <Link to="/" className="transition hover:text-[#0F6C8D]">
-              Accueil
-            </Link>
-
-            <Link to="/spaces" className="transition hover:text-[#0F6C8D]">
-              Espaces
-            </Link>
-
-            <Link to="/offres" className="transition hover:text-[#0F6C8D]">
-              Offres
-            </Link>
-
-            <Link to="/connexion" className="transition hover:text-[#0F6C8D]">
-              Connexion
-            </Link>
-
-            <Link to="/inscription" className="text-[#7A1E3A]">
-              Inscription
-            </Link>
-          </nav>
+          <DesktopNav />
+          <HeaderActions />
         </div>
       </header>
 
@@ -105,7 +88,7 @@ function Reservation() {
 
         <div className="relative mx-auto max-w-7xl px-6 py-12">
           <Link
-            to={selectedEvent ? "/events" : "/spaces/1"}
+            to={selectedEvent ? "/events" : "/spaces/friends-lab"}
             className="mb-8 inline-flex items-center gap-2 rounded-full bg-white/80 px-5 py-3 text-sm font-black text-[#0F2A43] shadow-sm transition hover:text-[#0F6C8D]"
           >
             <ArrowLeft className="h-4 w-4" />
