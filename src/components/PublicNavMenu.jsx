@@ -6,11 +6,12 @@ import { AnimatePresence, motion } from "framer-motion";
 function PublicNavMenu({ label, path, items }) {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
-  const active = pathname === path || pathname.startsWith(`${path}/`);
+  const cleanPath = path.split("#")[0].split("?")[0];
+  const active = cleanPath === "/" ? pathname === "/" : pathname === cleanPath || pathname.startsWith(`${cleanPath}/`);
 
   if (!items?.length) {
     return (
-      <Link to={path} className={active ? "text-[#0F6C8D]" : "transition hover:text-[#0F6C8D]"}>
+      <Link to={path} className={`shrink-0 whitespace-nowrap transition hover:text-[#0F6C8D] ${active ? "text-[#0F6C8D]" : ""}`}>
         {label}
       </Link>
     );
@@ -26,7 +27,7 @@ function PublicNavMenu({ label, path, items }) {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
     >
-      <Link to={path} className={`inline-flex items-center gap-1.5 transition hover:text-[#0F6C8D] ${active ? "text-[#0F6C8D]" : ""}`}>
+      <Link to={path} className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap transition hover:text-[#0F6C8D] ${active ? "text-[#0F6C8D]" : ""}`}>
         {label}
         <ChevronDown className={`h-3.5 w-3.5 transition ${open ? "rotate-180" : ""}`} />
       </Link>

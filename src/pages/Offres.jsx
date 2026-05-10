@@ -64,7 +64,7 @@ const needsCards = [
     icon: <Building2 className="h-6 w-6 text-[#7A1E3A]" />,
     title: "Pour remplir et valoriser votre espace",
     description: "Gagnez en visibilité, recevez des réservations et développez vos revenus.",
-    points: ["Visibilité renforcée", "Réservations centralisées", "Promotions intelligentes", "CoWorki Events"],
+    points: ["Visibilité renforcée", "Réservations centralisées", "Promotions intelligentes", "Événements CoWorki"],
     cta: "Devenir partenaire",
     href: "/offres",
     accent: "from-[#FCE8F0] to-white",
@@ -204,7 +204,7 @@ const offerTabs = {
       description: "Une offre complète pour développer vos réservations, vos événements et votre visibilité B2B.",
       features: [
         "Meilleur positionnement",
-        "Accès CoWorki Events",
+        "Accès aux événements CoWorki",
         "Mise en avant B2B",
         "Analyse du taux d’occupation",
         "Recommandations de promotions",
@@ -223,7 +223,7 @@ const comparisonRows = [
   { feature: "Badge Premium", starter: false, premium: true, premiumPlus: true },
   { feature: "Statistiques", starter: false, premium: true, premiumPlus: true },
   { feature: "Promotions flash", starter: false, premium: true, premiumPlus: true },
-  { feature: "CoWorki Events", starter: false, premium: false, premiumPlus: true },
+  { feature: "Événements CoWorki", starter: false, premium: false, premiumPlus: true },
   { feature: "Visibilité B2B", starter: false, premium: true, premiumPlus: true },
   { feature: "Support prioritaire", starter: false, premium: false, premiumPlus: true },
 ];
@@ -275,7 +275,7 @@ const faqItems = [
   {
     question: "Peut-on participer à des événements ?",
     answer:
-      "Oui, la page Events permet de découvrir les prochains workshops, meetups et événements communautaires.",
+      "Oui, la page Événements permet de découvrir les prochains ateliers, meetups et événements communautaires.",
   },
 ];
 
@@ -574,7 +574,7 @@ function Offres() {
             {[
               "Référencement gratuit",
               "Accompagnement à la création de la fiche",
-              "Participation possible aux premiers CoWorki Events",
+              "Participation possible aux premiers événements CoWorki",
             ].map((benefit) => (
               <div key={benefit} className="rounded-[2rem] border border-white/20 bg-white/10 p-6 text-sm backdrop-blur">
                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-white/15 text-white">

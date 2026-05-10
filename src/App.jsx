@@ -31,10 +31,13 @@ import Signup from "./pages/Signup";
 import BusinessDashboard from "./pages/BusinessDashboard";
 import LegalPage from "./pages/LegalPage";
 import AuthCallback from "./pages/AuthCallback";
+import SupabaseSessionBridge from "./components/SupabaseSessionBridge";
+import Onboarding from "./pages/Onboarding";
 
 function App() {
   return (
     <BrowserRouter>
+      <SupabaseSessionBridge />
       <ScrollToTop />
       <BackButton />
       <Routes>
@@ -53,6 +56,9 @@ function App() {
         <Route path="/inscription" element={<Signup />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/onboarding/user" element={<Onboarding type="user" />} />
+        <Route path="/onboarding/partner" element={<Onboarding type="partner" />} />
+        <Route path="/onboarding/company" element={<Onboarding type="company" />} />
         <Route path="/reservation" element={<Reservation />} />
         <Route path="/offres" element={<Offres />} />
         <Route path="/events" element={<Events />} />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Bell, Heart, MessageSquare, Star, Trophy, User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PageHero, PageShell, StatusBadge } from "../components/SiteLayout";
 import { matchingProfiles, profileUser } from "../data/platformData";
 import { getMockSession, updateCurrentUser } from "../data/mockAuth";
@@ -9,13 +9,14 @@ import { apiFetch } from "../data/apiClient";
 
 function UserDashboard() {
   const session = getMockSession();
+  const navigate = useNavigate();
   const currentUser = {
     ...profileUser,
     ...session,
     role: session?.roleLabel || profileUser.role,
-    interests: session?.interests?.length ? session.interests : profileUser.interests,
-    points: session?.points ?? profileUser.points,
-    hasConfirmedBooking: session?.hasConfirmedBooking ?? true,
+    interests: session ? session.interests || [] : profileUser.interests,
+    points: session?.points ?? 0,
+    hasConfirmedBooking: session?.hasConfirmedBooking ?? false,
   };
   const [liveReservations, setLiveReservations] = useState(currentUser.reservations || []);
   const [liveFavorites, setLiveFavorites] = useState(currentUser.favorites || []);
@@ -23,6 +24,10 @@ function UserDashboard() {
 
   useEffect(() => {
     if (!session?.id) return;
+    if (session.profileCompleted === false) {
+      navigate("/onboarding/user", { replace: true });
+      return;
+    }
 
     let active = true;
     Promise.all([
@@ -57,7 +62,7 @@ function UserDashboard() {
     return () => {
       active = false;
     };
-  }, [session?.id]);
+  }, [navigate, session?.id, session?.profileCompleted]);
 
   return (
     <PageShell active="/dashboard/user">

@@ -67,7 +67,7 @@ const pricingPlans = [
   {
     name: "Premium+",
     price: "99 TND",
-    features: ["Mise en avant prioritaire", "Accès aux demandes B2B", "Dashboard avancé", "Support prioritaire", "Participation recommandée aux CoWorki Events", "Badge partenaire premium"],
+    features: ["Mise en avant prioritaire", "Accès aux demandes B2B", "Tableau de bord avancé", "Support prioritaire", "Participation recommandée aux événements CoWorki", "Badge partenaire premium"],
   },
 ];
 
@@ -240,7 +240,7 @@ function DashboardPreview({ promoStatus, setPromoStatus }) {
     <section id="dashboard" className="scroll-mt-28 bg-[#0F2A43] px-6 py-20 text-white sm:py-24">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div>
-          <p className="text-sm font-black uppercase tracking-[0.3em] text-[#9ED8E8]">Dashboard partenaire</p>
+          <p className="text-sm font-black uppercase tracking-[0.3em] text-[#9ED8E8]">Tableau de bord partenaire</p>
           <h2 className="mt-4 text-4xl font-black tracking-[-0.03em] md:text-5xl">
             Pilotez votre activité depuis un tableau de bord simple et intelligent
           </h2>
@@ -300,8 +300,8 @@ function EventsForPartners() {
   return (
     <section id="events" className="scroll-mt-28 bg-white px-6 py-20 sm:py-24">
       <SectionIntro
-        eyebrow="CoWorki Events"
-        title="Animez votre espace avec CoWorki Events"
+        eyebrow="Événements CoWorki"
+        title="Animez votre espace avec les événements CoWorki"
         text="Les événements organisés via CoWorki permettent d’attirer de nouveaux visiteurs, de renforcer la notoriété de votre espace et de créer des opportunités de revenus supplémentaires."
       />
       <div className="mx-auto mt-12 grid max-w-7xl gap-6 md:grid-cols-3">

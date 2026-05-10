@@ -1,6 +1,6 @@
 import { apiFetch, setAuthToken } from "./apiClient";
+import { supabase } from "../lib/supabaseClient";
 
-const USERS_KEY = "coworki-users";
 const SESSION_KEY = "coworki-session-user-id";
 const SESSION_PROFILE_KEY = "coworki-session-profile";
 
@@ -19,20 +19,7 @@ export const roleHomeRoutes = {
 };
 
 export function getMockSession() {
-  const serverSession = getStoredServerSession();
-  if (serverSession) return serverSession;
-
-  seedAdminAccount();
-  const sessionUserId = localStorage.getItem(SESSION_KEY);
-  if (!sessionUserId) return null;
-
-  const user = getUsers().find((item) => item.id === sessionUserId);
-  if (!user) {
-    localStorage.removeItem(SESSION_KEY);
-    return null;
-  }
-
-  return toPublicSession(user);
+  return getStoredServerSession();
 }
 
 export async function createAccount(role, profile) {
@@ -76,6 +63,8 @@ export async function verifyRegistration({ email, emailCode, phoneCode }) {
     throw new Error(data.message || "Code de vérification invalide.");
   }
   const session = toClientSession(data.user, null, data.token);
+  session.nextStep = data.nextStep || roleHomeRoutes[session.role] || "/";
+  session.profileCompleted = Boolean(data.profileCompleted ?? data.user?.profileCompleted);
   setServerSession(session);
   return session;
 }
@@ -124,10 +113,20 @@ export async function syncOAuthAccount(payload) {
   return session;
 }
 
+export function setAuthenticatedSession(user, token = "", extra = {}) {
+  const session = {
+    ...toClientSession(user, null, token),
+    ...extra,
+  };
+  setServerSession(session);
+  return session;
+}
+
 export function clearMockSession() {
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(SESSION_PROFILE_KEY);
   setAuthToken(null);
+  supabase.auth.signOut();
   window.dispatchEvent(new Event("coworki-auth-change"));
 }
 
@@ -143,44 +142,14 @@ export async function updateCurrentUser(updates) {
   const session = getMockSession();
   if (!session) throw new Error("Vous devez être connecté.");
 
-  const users = getUsers();
-  const nextUsers = users.map((user) =>
-    user.id === session.id
-      ? {
-          ...user,
-          ...updates,
-          profile: { ...user.profile, ...(updates.profile || {}) },
-          updatedAt: new Date().toISOString(),
-        }
-      : user
-  );
-  saveUsers(nextUsers);
-  window.dispatchEvent(new Event("coworki-auth-change"));
-  return getMockSession();
-}
-
-function toPublicSession(user) {
-  const safeUser = { ...user };
-  delete safeUser.passwordHash;
-  return {
-    ...safeUser,
-    status: safeUser.status || roleLabels[safeUser.role],
-    name: safeUser.name || safeUser.fullName,
-    interests: safeUser.profile?.interests?.length ? safeUser.profile.interests : safeUser.interests || [],
-    city: safeUser.profile?.city || safeUser.city || "",
+  const nextSession = {
+    ...session,
+    ...updates,
+    profile: { ...session.profile, ...(updates.profile || {}) },
   };
-}
-
-function getUsers() {
-  try {
-    return JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function saveUsers(users) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  setServerSession(nextSession);
+  window.dispatchEvent(new Event("coworki-auth-change"));
+  return nextSession;
 }
 
 function setServerSession(session) {
@@ -210,6 +179,7 @@ function toClientSession(user, fallbackRole, token = "") {
     phone: user.phone || "",
     avatar: user.profile?.avatar || "",
     role,
+    profileCompleted: Boolean(user.profileCompleted),
     status: roleLabels[role],
     city: user.profile?.city || "",
     roleLabel: user.profile?.occupation || roleLabels[role],
@@ -231,35 +201,4 @@ function normalizeRole(role) {
   if (value === "COMPANY") return "business";
   if (value === "ADMIN") return "admin";
   return "user";
-}
-
-function seedAdminAccount() {
-  const users = getUsers();
-  if (users.some((user) => user.role === "admin")) return;
-
-  const admin = {
-    id: "admin-coworki",
-    fullName: "Admin CoWorki",
-    name: "Admin CoWorki",
-    email: "admin@coworki.tn",
-    phone: "",
-    role: "admin",
-    status: "Administrateur",
-    city: "Tunis",
-    roleLabel: "Administrateur",
-    interests: [],
-    points: 0,
-    hasConfirmedBooking: false,
-    company: "",
-    space: "",
-    validationStatus: "",
-    profile: { bio: "", occupation: "Administrateur", city: "Tunis", interests: [] },
-    partner: null,
-    companyProfile: null,
-    passwordHash: "db735458867474ed3163fd668a7324d4c03853bec77d1ab3dc2f070ad92d80dc",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  saveUsers([...users, admin]);
 }

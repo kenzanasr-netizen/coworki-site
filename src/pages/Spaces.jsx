@@ -39,7 +39,7 @@ function Spaces() {
     Parking: <Car className="h-4 w-4" />,
     Climatisation: <Snowflake className="h-4 w-4" />,
     Networking: <Users className="h-4 w-4" />,
-    Events: <CalendarDays className="h-4 w-4" />,
+    Événements: <CalendarDays className="h-4 w-4" />,
     Calme: <Building2 className="h-4 w-4" />,
   };
 

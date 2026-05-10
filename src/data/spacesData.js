@@ -77,8 +77,8 @@ export const spacesData = [
     phone: "36 401 401",
     opening: "Lundi - Vendredi, 08:30 - 18:30",
     quote: "Un espace reconnu pour sa communauté entrepreneuriale.",
-    tags: ["Startups", "Events", "Networking"],
-    services: ["Wi-Fi", "Open space", "Salle réunion", "Networking", "Events", "Café"],
+    tags: ["Startups", "Événements", "Networking"],
+    services: ["Wi-Fi", "Open space", "Salle réunion", "Networking", "Événements", "Café"],
     images: [
       cogite1,
       cogite2,
@@ -124,7 +124,7 @@ export const spacesData = [
     opening: "Lundi - Vendredi, 09:00 - 18:00",
     quote: "Un hub dédié à l’innovation digitale et aux entrepreneurs.",
     tags: ["Innovation", "Digital", "Entrepreneurs"],
-    services: ["Wi-Fi", "Events", "Networking", "Salle réunion", "Formation"],
+    services: ["Wi-Fi", "Événements", "Networking", "Salle réunion", "Formation"],
     images: [
       thedot1,
       thedot2,

@@ -3,10 +3,7 @@ const API_FALLBACK_URLS = ["http://localhost:4000", "http://127.0.0.1:4000"];
 const TOKEN_KEY = "coworki-auth-token";
 
 export async function apiFetch(path, options = {}) {
-  const urls = [`${API_BASE_URL}${path}`];
-  if (!API_BASE_URL) {
-    urls.push(...API_FALLBACK_URLS.map((url) => `${url}${path}`));
-  }
+  const urls = API_BASE_URL ? [`${API_BASE_URL}${path}`] : API_FALLBACK_URLS.map((url) => `${url}${path}`);
 
   let lastError = null;
 

@@ -1,23 +1,18 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { partnerMenuLinks } from "../data/partnerMenuLinks";
 import { clearMockSession, getMockSession } from "../data/mockAuth";
+import { getNavLinksForRole } from "../data/navigation";
 
 function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const [isPartnerOpen, setIsPartnerOpen] = useState(false);
   const session = getMockSession();
   const navigate = useNavigate();
-
-  const navLinks = [
-    { label: "Espaces", path: "/spaces" },
-    { label: "Events", path: "/events" },
-    { label: "Entreprises", path: "/business" },
-    { label: "À propos", path: "/about" },
-    { label: "Contact", path: "/contact" },
-  ];
+  const { pathname } = useLocation();
+  const navLinks = getNavLinksForRole(session?.role);
 
   const closeMenu = () => {
     setIsOpen(false);
@@ -30,7 +25,7 @@ function MobileNav() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-center p-2 xl:hidden"
-        aria-label="Toggle menu"
+        aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
       >
         {isOpen ? (
           <X className="h-6 w-6 text-[#0F2A43]" />
@@ -55,12 +50,13 @@ function MobileNav() {
                   key={link.path}
                   to={link.path}
                   onClick={closeMenu}
-                  className="py-3 px-4 text-sm font-black text-[#0F2A43] rounded-lg hover:bg-[#ECF8FC] transition"
+                  className={`py-3 px-4 text-sm font-black rounded-lg transition ${isActive(pathname, link.path) ? "bg-[#ECF8FC] text-[#0F6C8D]" : "text-[#0F2A43] hover:bg-[#ECF8FC]"}`}
                 >
                   {link.label}
                 </Link>
               ))}
 
+              {!session && (
               <div className="rounded-2xl bg-[#F7FAFC] p-2">
                 <button
                   type="button"
@@ -97,21 +93,17 @@ function MobileNav() {
                   )}
                 </AnimatePresence>
               </div>
+              )}
 
               <div className="border-t border-slate-200 pt-4 mt-4 space-y-3">
                 {session ? (
                   <>
                     <p className="px-4 text-xs font-black uppercase tracking-[0.2em] text-slate-400">{session.status}</p>
-                    {getMobilePrivateLinks(session.role).map(([label, path]) => (
-                      <Link
-                        key={path}
-                        to={path}
-                        onClick={closeMenu}
-                        className="block rounded-lg px-4 py-3 text-sm font-black text-[#0F2A43] transition hover:bg-[#ECF8FC]"
-                      >
-                        {label}
-                      </Link>
-                    ))}
+                    {session.role === "partner" && session.validationStatus && (
+                      <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm font-black text-amber-700">
+                        Compte en attente de validation
+                      </div>
+                    )}
                     <button
                       type="button"
                       onClick={() => {
@@ -140,6 +132,13 @@ function MobileNav() {
                     >
                       Créer un compte
                     </Link>
+                    <Link
+                      to="/spaces"
+                      onClick={closeMenu}
+                      className="block w-full rounded-lg bg-[#0F6C8D] px-4 py-3 text-center text-sm font-black text-white transition hover:bg-[#0B5873]"
+                    >
+                      Réserver un espace
+                    </Link>
                   </>
                 )}
               </div>
@@ -151,39 +150,10 @@ function MobileNav() {
   );
 }
 
-function getMobilePrivateLinks(role) {
-  if (role === "admin") {
-    return [
-      ["Dashboard admin", "/admin/dashboard"],
-      ["Utilisateurs", "/admin/users"],
-      ["Espaces à valider", "/admin/spaces"],
-      ["Réservations", "/admin/bookings"],
-      ["Statistiques", "/admin/stats"],
-    ];
-  }
-  if (role === "partner") {
-    return [
-      ["Dashboard partenaire", "/partner/dashboard"],
-      ["Mes espaces", "/dashboard/partner/spaces"],
-      ["Réservations", "/dashboard/partner/bookings"],
-      ["Demandes B2B", "/dashboard/partner/b2b-requests"],
-      ["Revenus", "/dashboard/partner/revenue"],
-    ];
-  }
-  if (role === "business") {
-    return [
-      ["Dashboard entreprise", "/company/dashboard"],
-      ["Demandes B2B", "/company/dashboard#requests"],
-      ["Réservations", "/company/dashboard#bookings"],
-      ["Salles recommandées", "/business"],
-    ];
-  }
-  return [
-    ["Mon profil", "/dashboard"],
-    ["Mes réservations", "/dashboard#reservations"],
-    ["Mes favoris", "/dashboard#favoris"],
-    ["Smart Matching", "/dashboard#smart-matching"],
-  ];
+function isActive(pathname, path) {
+  const cleanPath = path.split("#")[0].split("?")[0];
+  if (cleanPath === "/") return pathname === "/";
+  return pathname === cleanPath || pathname.startsWith(`${cleanPath}/`);
 }
 
 export default MobileNav;

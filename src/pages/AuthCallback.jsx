@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader2, ShieldCheck } from "lucide-react";
 import logo from "../assets/logo-coworki.png";
-import { roleHomeRoutes, syncOAuthAccount } from "../data/mockAuth";
+import { syncOAuthAccount } from "../data/mockAuth";
 import { supabase } from "../lib/supabaseClient";
 
 function AuthCallback() {
@@ -11,13 +11,28 @@ function AuthCallback() {
 
   useEffect(() => {
     let active = true;
+    const searchParams = new URLSearchParams(window.location.search);
+    const requestedRole = searchParams.get("role") || "USER";
 
     async function completeOAuth() {
       try {
+        const code = searchParams.get("code");
+        if (code) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          if (exchangeError) throw exchangeError;
+        }
+
         const { data, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) throw sessionError;
 
-        const session = data.session;
+        let session = data.session;
+        if (!session) {
+          await new Promise((resolve) => setTimeout(resolve, 450));
+          const retry = await supabase.auth.getSession();
+          if (retry.error) throw retry.error;
+          session = retry.data.session;
+        }
+
         const supabaseUser = session?.user;
         if (!session || !supabaseUser?.email) {
           throw new Error("Session Google introuvable. Réessayez depuis la page connexion.");
@@ -31,10 +46,11 @@ function AuthCallback() {
           provider: "google",
           supabaseUserId: supabaseUser.id,
           accessToken: session.access_token,
+          role: requestedRole,
         });
 
         if (!active) return;
-        navigate(roleHomeRoutes[coworkiSession.role] || "/dashboard", { replace: true });
+        navigate(coworkiSession.nextStep || "/dashboard", { replace: true });
       } catch (authError) {
         if (active) setError(authError.message || "Impossible de finaliser la connexion Google.");
       }
@@ -64,7 +80,7 @@ function AuthCallback() {
           </>
         ) : (
           <p className="mt-3 text-sm font-bold leading-7 text-slate-600">
-            Nous vérifions votre session Google et préparons votre espace CoWorki.
+            Connexion Google réussie. Préparation de votre espace CoWorki…
           </p>
         )}
       </div>

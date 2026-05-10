@@ -12,7 +12,7 @@ const pageContent = {
     icon: BadgePercent,
   },
   events: {
-    title: "Events",
+    title: "Événements",
     subtitle: "Les rencontres et ateliers coworking arrivent bientôt.",
     icon: CalendarDays,
   },

@@ -54,7 +54,7 @@ function SpaceDetails() {
     Parking: <Car className="h-5 w-5" />,
     Climatisation: <Snowflake className="h-5 w-5" />,
     Networking: <Users className="h-5 w-5" />,
-    Events: <CalendarDays className="h-5 w-5" />,
+    Événements: <CalendarDays className="h-5 w-5" />,
   };
 
   useEffect(() => {

@@ -88,7 +88,7 @@ function Home() {
     },
     {
       icon: <Network className="h-6 w-6" />,
-      title: "Events & networking",
+      title: "Événements & networking",
       text: "Découvrez des événements et connectez-vous avec des profils proches de vos intérêts.",
     },
   ];
@@ -695,17 +695,17 @@ function Home() {
           className="absolute top-10 flex whitespace-nowrap text-7xl font-black uppercase tracking-[-0.06em] text-white/[0.035] md:text-8xl"
         >
           <span className="mx-8">
-            CoWorki Events • Networking • Workshops • Community •
+            Événements CoWorki • Networking • Ateliers • Communauté •
           </span>
           <span className="mx-8">
-            CoWorki Events • Networking • Workshops • Community •
+            Événements CoWorki • Networking • Ateliers • Communauté •
           </span>
         </motion.div>
 
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-[0.95fr_1.05fr]">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.3em] text-[#9ED8E8]">
-              CoWorki Events
+              Événements CoWorki
             </p>
 
             <h2 className="mt-4 text-4xl font-black tracking-[-0.04em] md:text-6xl">

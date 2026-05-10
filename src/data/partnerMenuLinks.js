@@ -30,13 +30,13 @@ export const partnerMenuLinks = [
     Icon: ListChecks,
   },
   {
-    label: "Dashboard partenaire",
+    label: "Aperçu du tableau de bord",
     path: "/partenaires#dashboard",
     description: "Réservations, revenus, taux d’occupation et avis.",
     Icon: Gauge,
   },
   {
-    label: "CoWorki Events",
+    label: "Événements CoWorki",
     path: "/partenaires#events",
     description: "Animez votre espace avec des événements professionnels.",
     Icon: CalendarDays,

@@ -36,6 +36,26 @@ export const adminSections = {
     ],
     actions: ["Voir détail", "Suspendre"],
   },
+  "pending-partners": {
+    title: "Partenaires en attente",
+    eyebrow: "Validation partenaires",
+    rows: [
+      ["WorkZone Coworking", "Tunis", "Inscrit via Google", "En attente"],
+      ["El Space", "Ariana", "Formulaire complet", "En attente"],
+      ["Hub Digital Sfax", "Sfax", "Photos à vérifier", "À vérifier"],
+    ],
+    actions: ["Valider", "Refuser"],
+  },
+  companies: {
+    title: "Entreprises",
+    eyebrow: "Comptes B2B",
+    rows: [
+      ["Startup Nova", "Tech", "12 réservations", "Actif"],
+      ["EduLab", "Formation", "3 demandes B2B", "Actif"],
+      ["MedTech TN", "Santé", "1 séminaire", "En attente"],
+    ],
+    actions: ["Voir détail", "Suspendre"],
+  },
   bookings: {
     title: "Réservations",
     eyebrow: "Suivi plateforme",
@@ -67,8 +87,8 @@ export const adminSections = {
     actions: ["Valider", "Refuser"],
   },
   events: {
-    title: "Events",
-    eyebrow: "CoWorki Events",
+    title: "Événements",
+    eyebrow: "Événements CoWorki",
     rows: [
       ["Freelance Meetup Tunis", "15 juin 2026", "The Dot", "Publié"],
       ["Workshop IA", "22 juin 2026", "Cogite", "En préparation"],
@@ -85,6 +105,16 @@ export const adminSections = {
       ["Demandes B2B", "42", "Trimestre", "+18 %"],
     ],
     actions: ["Voir détail"],
+  },
+  notifications: {
+    title: "Notifications",
+    eyebrow: "Alertes administrateur",
+    rows: [
+      ["Nouveau partenaire", "WorkZone Coworking", "Validation requise", "En attente"],
+      ["Nouvelle réservation", "Friends Lab", "30 TND", "Confirmée"],
+      ["Entreprise inscrite", "Startup Nova", "Compte B2B", "Actif"],
+    ],
+    actions: ["Marquer comme lu", "Voir détail"],
   },
 };
 
@@ -109,6 +139,16 @@ export const partnerSections = {
     ],
     actions: ["Valider", "Refuser"],
   },
+  capacity: {
+    title: "Capacité",
+    eyebrow: "Disponibilités partenaire",
+    rows: [
+      ["Aujourd’hui", "18 places restantes", "Capacité 25", "Active"],
+      ["Demain", "22 places restantes", "Capacité 25", "Active"],
+      ["Vendredi", "Faible occupation prévue", "Promotion suggérée", "Suggérée"],
+    ],
+    actions: ["Modifier", "Créer promotion"],
+  },
   "b2b-requests": {
     title: "Demandes B2B",
     eyebrow: "Opportunités entreprises",
@@ -125,7 +165,7 @@ export const partnerSections = {
     rows: [
       ["Réservations individuelles", "1 240 TND", "Ce mois", "+12 %"],
       ["Salles réunion", "1 710 TND", "Ce mois", "+8 %"],
-      ["Events B2B", "900 TND", "Ce mois", "Nouveau"],
+      ["Événements B2B", "900 TND", "Ce mois", "Nouveau"],
     ],
     actions: ["Voir détail"],
   },
@@ -138,6 +178,36 @@ export const partnerSections = {
       ["Salle réunion matin", "-10 %", "Terminée", "Mai 2026"],
     ],
     actions: ["Accepter", "Modifier"],
+  },
+  reviews: {
+    title: "Avis clients",
+    eyebrow: "Réputation partenaire",
+    rows: [
+      ["Lina Ferchichi", "5/5", "Très calme et pratique", "Publié"],
+      ["Ahmed Ben Salem", "4/5", "Salle réunion bien équipée", "Publié"],
+      ["Nour Haddad", "Avis en attente", "À modérer", "À vérifier"],
+    ],
+    actions: ["Répondre", "Voir détail"],
+  },
+  notifications: {
+    title: "Notifications",
+    eyebrow: "Alertes partenaire",
+    rows: [
+      ["Nouvelle réservation", "Lina Ferchichi", "Poste individuel", "En attente"],
+      ["Compte partenaire", "Validation admin", "Votre compte est en attente", "En attente"],
+      ["Promotion flash", "Vendredi après-midi", "-20 % recommandé", "Suggérée"],
+    ],
+    actions: ["Marquer comme lu", "Voir détail"],
+  },
+  profile: {
+    title: "Profil partenaire",
+    eyebrow: "Informations partenaire",
+    rows: [
+      ["Nom espace", "Friends Lab", "Sousse", "Actif"],
+      ["Contact", "partner@coworki.tn", "+216", "À compléter"],
+      ["Statut", "Validation admin", "Compte partenaire", "En attente"],
+    ],
+    actions: ["Modifier", "Voir détail"],
   },
   premium: {
     title: "Offres Premium",

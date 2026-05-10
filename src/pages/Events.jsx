@@ -458,7 +458,7 @@ function Events() {
         >
           <h2 className="text-3xl font-black text-[#0F2A43]">Un levier de visibilité pour les espaces partenaires</h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-            Grâce à CoWorki Events, les espaces de coworking peuvent attirer de nouveaux visiteurs, animer leur
+            Grâce aux événements CoWorki, les espaces de coworking peuvent attirer de nouveaux visiteurs, animer leur
             communauté et développer des revenus complémentaires.
           </p>
         </motion.div>
@@ -491,7 +491,7 @@ function Events() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl font-black text-white">Prêt à vivre l'expérience CoWorki Events ?</h2>
+            <h2 className="text-4xl font-black text-white">Prêt à vivre l’expérience des événements CoWorki ?</h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-[#ECF8FC]">
               Rejoignez les prochains événements et transformez chaque espace de coworking en opportunité de rencontre,
               d'apprentissage et de collaboration.

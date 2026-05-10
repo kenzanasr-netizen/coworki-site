@@ -4,32 +4,30 @@ import { Link } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
 import { PageHero, PageShell, StatusBadge } from "../components/SiteLayout";
 import { apiFetch } from "../data/apiClient";
-import { adminSpaces } from "../data/platformData";
 
 function AdminDashboard() {
   const [overview, setOverview] = useState(null);
   const [partners, setPartners] = useState([]);
+  const [reservations, setReservations] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [notice, setNotice] = useState("");
+  const [loadingAction, setLoadingAction] = useState("");
 
   useEffect(() => {
     let active = true;
 
-    Promise.all([
-      apiFetch("/api/admin/overview").then(async (response) => {
+    apiFetch("/api/admin/dashboard")
+      .then(async (response) => {
         const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.message || "Impossible de charger les statistiques admin.");
-        return data.stats;
-      }),
-      apiFetch("/api/admin/partners?status=PENDING").then(async (response) => {
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.message || "Impossible de charger les partenaires.");
-        return data.partners || [];
-      }),
-    ])
-      .then(([stats, pendingPartners]) => {
+        if (!response.ok) throw new Error(data.message || "Impossible de charger le tableau de bord admin.");
+        return data;
+      })
+      .then((data) => {
         if (!active) return;
-        setOverview(stats);
-        setPartners(pendingPartners);
+        setOverview(data.stats);
+        setPartners(data.pendingPartners || []);
+        setReservations(data.latestReservations || []);
+        setNotifications(data.notifications || []);
       })
       .catch((error) => {
         if (active) setNotice(error.message);
@@ -41,11 +39,11 @@ function AdminDashboard() {
   }, []);
 
   const updatePartnerStatus = async (partnerId, status) => {
+    setLoadingAction(`${status}-${partnerId}`);
     setNotice("");
     try {
-      const response = await apiFetch(`/api/admin/partners/${partnerId}/status`, {
+      const response = await apiFetch(`/api/admin/partners/${partnerId}/${status === "APPROVED" ? "approve" : "reject"}`, {
         method: "PATCH",
-        body: JSON.stringify({ status }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.message || "Impossible de mettre à jour le partenaire.");
@@ -53,6 +51,24 @@ function AdminDashboard() {
       setNotice(status === "APPROVED" ? "Partenaire approuvé et notifié." : "Partenaire refusé et notifié.");
     } catch (error) {
       setNotice(error.message);
+    } finally {
+      setLoadingAction("");
+    }
+  };
+
+  const markNotificationRead = async (notificationId) => {
+    setLoadingAction(`notification-${notificationId}`);
+    setNotice("");
+    try {
+      const response = await apiFetch(`/api/admin/notifications/${notificationId}/read`, { method: "PATCH" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || "Impossible de marquer la notification.");
+      setNotifications((current) => current.map((item) => (item.id === notificationId ? { ...item, read: true } : item)));
+      setNotice("Notification marquée comme lue.");
+    } catch (error) {
+      setNotice(error.message);
+    } finally {
+      setLoadingAction("");
     }
   };
 
@@ -60,7 +76,7 @@ function AdminDashboard() {
     [<Users />, "Utilisateurs inscrits", overview?.users ?? "—"],
     [<Building2 />, "Partenaires", overview?.partners ?? "—"],
     [<BarChart3 />, "Réservations", overview?.reservations ?? "—"],
-    [<CreditCard />, "Entreprises", overview?.companies ?? "—"],
+    [<CreditCard />, "Revenus estimés", `${overview?.monthRevenue ?? 0} TND`],
   ];
 
   return (
@@ -86,8 +102,8 @@ function AdminDashboard() {
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           {[
             ["Validation requise", `${overview?.pendingPartners ?? 0} partenaire(s) attendent une décision admin.`, "amber"],
-            ["Transactions", "Les transactions seront visibles après les premiers paiements.", "green"],
-            ["Signalements", "Les avis signalés apparaîtront ici dès qu’ils existent.", "red"],
+            ["Espaces", `${overview?.spaces ?? 0} espace(s) enregistrés dans la base.`, "green"],
+            ["Notifications", `${overview?.unreadNotifications ?? 0} notification(s) admin non lue(s).`, "red"],
           ].map(([title, text, tone]) => (
             <div key={title} className="rounded-[2rem] bg-white p-5 shadow-sm ring-1 ring-slate-100">
               <StatusBadge tone={tone}>{title}</StatusBadge>
@@ -109,22 +125,9 @@ function AdminDashboard() {
                     <StatusBadge tone="amber">{partner.status}</StatusBadge>
                   </div>
                   <div className="mt-3 flex gap-2">
-                    <button onClick={() => updatePartnerStatus(partner.id, "APPROVED")} className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-black text-white">Valider</button>
-                    <button onClick={() => updatePartnerStatus(partner.id, "REJECTED")} className="rounded-full bg-[#7A1E3A] px-4 py-2 text-xs font-black text-white">Refuser</button>
+                    <button disabled={loadingAction === `APPROVED-${partner.id}`} onClick={() => updatePartnerStatus(partner.id, "APPROVED")} className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-black text-white disabled:opacity-60">Valider</button>
+                    <button disabled={loadingAction === `REJECTED-${partner.id}`} onClick={() => updatePartnerStatus(partner.id, "REJECTED")} className="rounded-full bg-[#7A1E3A] px-4 py-2 text-xs font-black text-white disabled:opacity-60">Refuser</button>
                   </div>
-                </div>
-              ))
-            ) : adminSpaces.length ? (
-              adminSpaces.map((space) => (
-                <div key={space.name} className="mb-3 rounded-2xl bg-[#F7FAFC] p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-black text-[#0F2A43]">{space.name}</p>
-                      <p className="text-sm text-slate-500">{space.city} · {space.owner}</p>
-                    </div>
-                    <StatusBadge tone={space.status === "Validé" ? "green" : "amber"}>{space.status}</StatusBadge>
-                  </div>
-                  <p className="mt-3 text-xs font-bold text-slate-500">Donnée de démonstration affichée si aucun partenaire réel n’est en attente.</p>
                 </div>
               ))
             ) : (
@@ -135,6 +138,8 @@ function AdminDashboard() {
           <Panel title="Gestion plateforme">
             {[
               ["Gestion des utilisateurs", "/admin/users"],
+              ["Partenaires", "/admin/partners"],
+              ["Espaces", "/admin/spaces"],
               ["Réservations récentes", "/admin/bookings"],
               ["Transactions", "/admin/transactions"],
               ["Avis et signalements", "/admin/reviews"],
@@ -147,6 +152,46 @@ function AdminDashboard() {
                 <Link to={path} className="rounded-full bg-white px-4 py-2 text-xs font-black text-[#0F6C8D]">Ouvrir</Link>
               </div>
             ))}
+          </Panel>
+        </section>
+
+        <section className="mt-8 grid gap-8 lg:grid-cols-2">
+          <Panel title="Réservations récentes">
+            {reservations.length ? (
+              reservations.map((reservation) => (
+                <div key={reservation.id} className="mb-3 rounded-2xl bg-[#F7FAFC] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-black text-[#0F2A43]">{reservation.user?.fullName || "Utilisateur"}</p>
+                      <p className="text-sm text-slate-500">{reservation.space?.name || "Espace"} · {new Date(reservation.date).toLocaleDateString("fr-FR")} · {reservation.total} TND</p>
+                    </div>
+                    <StatusBadge tone={reservation.status === "CONFIRMED" ? "green" : reservation.status === "CANCELLED" ? "red" : "amber"}>{reservation.status}</StatusBadge>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <EmptyState title="Aucune réservation trouvée." text="Les réservations créées par les utilisateurs apparaîtront ici." />
+            )}
+          </Panel>
+          <Panel title="Notifications admin">
+            {notifications.length ? (
+              notifications.map((notification) => (
+                <div key={notification.id} className="mb-3 rounded-2xl bg-[#F7FAFC] p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-black text-[#0F2A43]">{notification.title}</p>
+                      <p className="mt-1 text-sm font-bold text-slate-500">{notification.message}</p>
+                    </div>
+                    <StatusBadge tone={notification.read ? "teal" : "amber"}>{notification.read ? "Lue" : "Non lue"}</StatusBadge>
+                  </div>
+                  {!notification.read && (
+                    <button disabled={loadingAction === `notification-${notification.id}`} onClick={() => markNotificationRead(notification.id)} className="mt-3 rounded-full bg-white px-4 py-2 text-xs font-black text-[#0F6C8D] disabled:opacity-60">Marquer comme lu</button>
+                  )}
+                </div>
+              ))
+            ) : (
+              <EmptyState title="Aucune notification admin." text="Les validations, inscriptions et réservations importantes apparaîtront ici." />
+            )}
           </Panel>
         </section>
       </main>

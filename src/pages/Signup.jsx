@@ -8,7 +8,6 @@ import {
   BriefcaseBusiness,
   Check,
   CheckCircle2,
-  ChevronDown,
   Code2,
   Languages,
   Leaf,
@@ -89,6 +88,27 @@ const interestOptions = [
   "Leadership",
   "Langues",
 ];
+
+const interestCategories = [
+  {
+    name: "Créatif",
+    items: ["Design", "UX/UI", "Branding", "Création de contenu", "Photographie", "Vidéo", "Architecture"],
+  },
+  {
+    name: "Tech",
+    items: ["Intelligence artificielle", "Data science", "Développement web", "React", "Next.js", "Mobile", "No-code"],
+  },
+  {
+    name: "Business",
+    items: ["Business", "Entrepreneuriat", "Startups", "Innovation", "E-commerce", "Finance", "Comptabilité", "RH", "Gestion de projet", "Product management"],
+  },
+  {
+    name: "Communauté",
+    items: ["Freelance", "Télétravail", "Networking", "Événementiel", "Formation", "Leadership", "Langues", "Développement durable"],
+  },
+];
+
+const popularInterests = ["Design", "Marketing digital", "Intelligence artificielle", "Développement web", "Entrepreneuriat", "Networking"];
 
 function Signup() {
   const [searchParams] = useSearchParams();
@@ -197,14 +217,7 @@ function Signup() {
 
         {!type && (
           <>
-            <div className="mx-auto mt-10 max-w-md">
-              <GoogleAuthButton onError={setError} label="Continuer avec Google" />
-              {error && <p className="mt-4 rounded-2xl bg-[#FBEFF3] px-4 py-3 text-sm font-black text-[#7A1E3A]">{error}</p>}
-              <p className="mt-3 text-center text-xs font-bold text-slate-500">
-                Google crée un compte utilisateur. Les comptes entreprise et partenaire passent par le formulaire dédié.
-              </p>
-            </div>
-            <div className="mt-10 grid gap-6 lg:grid-cols-3">
+            <div className="mt-12 grid gap-6 lg:grid-cols-3">
               {Object.entries(accountTypes).map(([key, item]) => (
                 <motion.button
                   key={key}
@@ -263,6 +276,16 @@ function Signup() {
                 <h2 className="text-3xl font-black text-[#0F2A43]">{selected.title}</h2>
                 <p className="mt-2 leading-7 text-slate-600">{selected.description}</p>
                 <form onSubmit={submit} className="mt-7 space-y-5">
+                  <GoogleAuthButton
+                    onError={setError}
+                    label={`Continuer avec Google${type === "business" ? " comme entreprise" : type === "partner" ? " comme partenaire" : ""}`}
+                    role={type === "business" ? "COMPANY" : type === "partner" ? "PARTNER" : "USER"}
+                  />
+                  <div className="flex items-center gap-3">
+                    <span className="h-px flex-1 bg-slate-200" />
+                    <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">ou remplir le formulaire</span>
+                    <span className="h-px flex-1 bg-slate-200" />
+                  </div>
                   {type === "user" && <UserSignupFields />}
                   {type === "business" && <BusinessSignupFields />}
                   {type === "partner" && <PartnerSignupFields />}
@@ -460,11 +483,15 @@ function SelectGroup({ title, name, items }) {
 
 function InterestPicker() {
   const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("Tous");
   const [selected, setSelected] = useState([]);
-  const filteredInterests = interestOptions.filter((item) =>
-    item.toLowerCase().includes(query.trim().toLowerCase())
-  );
+  const activeItems = activeCategory === "Tous"
+    ? interestOptions
+    : interestCategories.find((category) => category.name === activeCategory)?.items || interestOptions;
+  const filteredInterests = activeItems.filter((item) => item.toLowerCase().includes(query.trim().toLowerCase()));
+  const selectedText = selected.length
+    ? `${selected.length} centre${selected.length > 1 ? "s" : ""} sélectionné${selected.length > 1 ? "s" : ""}`
+    : "Aucun centre sélectionné";
 
   const toggleInterest = (interest) => {
     setSelected((current) =>
@@ -475,95 +502,134 @@ function InterestPicker() {
   };
 
   return (
-    <div className="relative">
-      <p className="mb-2 text-sm font-black text-[#0F2A43]">Centres d’intérêt</p>
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        className="flex w-full items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-[#F7FAFC] px-4 py-4 text-left font-bold outline-none transition hover:border-[#9ED8E8] focus:border-[#0F6C8D]"
-        aria-expanded={open}
-      >
-        <span className="flex min-w-0 items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-[#0F6C8D] shadow-sm">
-            <Sparkles className="h-5 w-5" />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-sm font-black text-[#0F2A43]">
-              {selected.length ? `${selected.length} centre${selected.length > 1 ? "s" : ""} sélectionné${selected.length > 1 ? "s" : ""}` : "Choisir vos centres d’intérêt"}
-            </span>
-            <span className="block truncate text-xs font-bold text-slate-500">
-              {selected.length ? selected.join(", ") : "Cliquez pour rechercher et sélectionner"}
-            </span>
-          </span>
-        </span>
-        <ChevronDown className={`h-5 w-5 shrink-0 text-[#0F6C8D] transition ${open ? "rotate-180" : ""}`} />
-      </button>
+    <section className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="inline-flex items-center gap-2 rounded-full bg-[#ECF8FC] px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-[#0F6C8D]">
+            <Sparkles className="h-3.5 w-3.5" />
+            Smart Matching
+          </p>
+          <h3 className="mt-3 text-2xl font-black tracking-[-0.03em] text-[#0F2A43]">Vos centres d’intérêt</h3>
+          <p className="mt-2 max-w-2xl text-sm font-bold leading-6 text-slate-500">
+            Sélectionnez au moins 3 thèmes pour personnaliser vos recommandations d’espaces, d’événements et de profils compatibles.
+          </p>
+        </div>
+        <div className="rounded-2xl bg-[#F7FAFC] px-4 py-3 text-left lg:min-w-48">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">Progression</p>
+          <p className="mt-1 text-lg font-black text-[#0F2A43]">{selectedText}</p>
+        </div>
+      </div>
 
       {selected.map((item) => (
         <input key={item} type="hidden" name="interests" value={item} />
       ))}
 
-      {open && (
-        <div className="absolute left-0 right-0 z-30 mt-3 overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-2xl shadow-slate-300/60">
-          <div className="border-b border-slate-100 p-4">
-            <label className="relative block">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#0F6C8D]" />
-              <input
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Rechercher un intérêt..."
-                className="w-full rounded-2xl border border-slate-200 bg-[#F7FAFC] py-3 pl-11 pr-4 text-sm font-bold outline-none focus:border-[#0F6C8D]"
-              />
-            </label>
-          </div>
+      <input className="sr-only" tabIndex={-1} value={selected.join(",")} onChange={() => {}} required aria-hidden="true" />
 
-          <div className="max-h-80 overflow-y-auto p-3">
-            <div className="grid gap-2 md:grid-cols-2">
-              {filteredInterests.map((item) => {
-                const checked = selected.includes(item);
-                return (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => toggleInterest(item)}
-                    className={`flex items-center justify-between gap-3 rounded-2xl p-3 text-left transition ${
-                      checked
-                        ? "bg-[#ECF8FC] text-[#0F6C8D] ring-1 ring-[#9ED8E8]"
-                        : "bg-[#F7FAFC] text-slate-600 hover:bg-[#ECF8FC]"
-                    }`}
-                  >
-                    <span className="flex min-w-0 items-center gap-3">
-                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${checked ? "bg-white" : "bg-white"} text-[#0F6C8D] shadow-sm`}>
-                        {getInterestIcon(item)}
-                      </span>
-                      <span className="truncate text-sm font-black">{item}</span>
-                    </span>
-                    {checked && (
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0F6C8D] text-white">
-                        <Check className="h-4 w-4" />
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+      <div className="mt-5 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="space-y-4">
+          <label className="relative block">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#0F6C8D]" />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Rechercher un intérêt..."
+              className="w-full rounded-2xl border border-slate-200 bg-[#F7FAFC] py-3 pl-11 pr-4 text-sm font-bold outline-none transition focus:border-[#0F6C8D] focus:bg-white"
+            />
+          </label>
+
+          <div>
+            <p className="mb-2 text-xs font-black uppercase tracking-[0.16em] text-slate-400">Populaires</p>
+            <div className="flex flex-wrap gap-2">
+              {popularInterests.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => toggleInterest(item)}
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-black transition ${
+                    selected.includes(item)
+                      ? "bg-[#0F6C8D] text-white"
+                      : "bg-[#ECF8FC] text-[#0F6C8D] hover:bg-[#DDF3FA]"
+                  }`}
+                >
+                  {selected.includes(item) && <Check className="h-3.5 w-3.5" />}
+                  {item}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-3 border-t border-slate-100 bg-[#F7FAFC] p-4">
-            <p className="text-xs font-bold text-slate-500">
-              {selected.length ? `${selected.length} sélectionné(s)` : "Aucun centre sélectionné"}
-            </p>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="rounded-full bg-[#7A1E3A] px-5 py-2.5 text-xs font-black text-white transition hover:bg-[#64172F]"
-            >
-              Valider
-            </button>
+          <div>
+            <p className="mb-2 text-xs font-black uppercase tracking-[0.16em] text-slate-400">Catégories</p>
+            <div className="grid grid-cols-2 gap-2">
+              {["Tous", ...interestCategories.map((category) => category.name)].map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setActiveCategory(category)}
+                  className={`rounded-2xl border px-3 py-3 text-sm font-black transition ${
+                    activeCategory === category
+                      ? "border-[#0F6C8D] bg-[#0F6C8D] text-white shadow-lg shadow-[#0F6C8D]/15"
+                      : "border-slate-200 bg-[#F7FAFC] text-slate-600 hover:border-[#9ED8E8] hover:bg-white"
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      )}
+
+        <div className="rounded-[1.5rem] bg-[#F7FAFC] p-3">
+          <div className="mb-3 flex items-center justify-between gap-3 px-1">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">{filteredInterests.length} options</p>
+            {selected.length > 0 && (
+              <button type="button" onClick={() => setSelected([])} className="text-xs font-black text-[#7A1E3A]">
+                Tout retirer
+              </button>
+            )}
+          </div>
+          <div className="grid max-h-96 gap-2 overflow-y-auto pr-1 md:grid-cols-2">
+            {filteredInterests.map((item) => {
+              const checked = selected.includes(item);
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => toggleInterest(item)}
+                  className={`group flex min-h-20 items-center justify-between gap-3 rounded-2xl p-3 text-left transition ${
+                    checked
+                      ? "bg-white text-[#0F6C8D] ring-2 ring-[#9ED8E8]"
+                      : "bg-white/80 text-slate-600 ring-1 ring-transparent hover:-translate-y-0.5 hover:text-[#0F2A43] hover:shadow-md"
+                  }`}
+                >
+                  <span className="flex min-w-0 items-center gap-3">
+                    <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-sm ${checked ? "bg-[#ECF8FC] text-[#0F6C8D]" : "bg-[#F7FAFC] text-[#0F6C8D]"}`}>
+                      {getInterestIcon(item)}
+                    </span>
+                    <span>
+                      <span className="block text-sm font-black">{item}</span>
+                      <span className="mt-0.5 block text-xs font-bold text-slate-400">{getInterestCategory(item)}</span>
+                    </span>
+                  </span>
+                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition ${
+                    checked ? "border-[#0F6C8D] bg-[#0F6C8D] text-white" : "border-slate-200 bg-white text-transparent group-hover:text-slate-300"
+                  }`}>
+                    <Check className="h-4 w-4" />
+                  </span>
+                </button>
+              );
+            })}
+            {!filteredInterests.length && (
+              <div className="col-span-full rounded-2xl bg-white p-6 text-center">
+                <p className="text-sm font-black text-[#0F2A43]">Aucun centre trouvé</p>
+                <p className="mt-1 text-xs font-bold text-slate-500">Essayez un autre mot-clé ou changez de catégorie.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
         {selected.map((item) => (
@@ -578,8 +644,12 @@ function InterestPicker() {
           </button>
         ))}
       </div>
-    </div>
+    </section>
   );
+}
+
+function getInterestCategory(item) {
+  return interestCategories.find((category) => category.items.includes(item))?.name || "Général";
 }
 
 function getInterestIcon(item) {

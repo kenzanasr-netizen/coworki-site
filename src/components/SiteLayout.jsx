@@ -33,7 +33,7 @@ export function SiteFooter() {
             CoWorki aide les utilisateurs, entreprises et espaces partenaires à trouver, réserver et valoriser les meilleurs lieux de travail en Tunisie.
           </p>
         </div>
-        <FooterColumn title="Liens rapides" links={[["Accueil", "/"], ["Espaces", "/spaces"], ["Events", "/events"], ["À propos", "/about"], ["Contact", "/contact"]]} />
+        <FooterColumn title="Liens rapides" links={[["Accueil", "/"], ["Espaces", "/spaces"], ["Événements", "/events"], ["À propos", "/about"], ["Contact", "/contact"]]} />
         <FooterColumn title="Plateforme" links={[["Devenir partenaire", "/partenaires"], ["Entreprises", "/business"], ["Guide utilisateur", "/demo"], ["Eco Boost", "/eco-visibility"]]} />
         <FooterColumn title="Confiance" links={[["Conditions générales", "/legal/terms"], ["Confidentialité", "/legal/privacy"], ["Mentions légales", "/legal/mentions"], ["Annulation", "/legal/cancellation"]]} />
         <div>

@@ -82,7 +82,7 @@ function Login() {
           </div>
 
           <form onSubmit={submitLogin} className="space-y-5">
-            <GoogleAuthButton onError={setError} />
+            <GoogleAuthButton onError={setError} role="USER" />
             <div className="flex items-center gap-3">
               <span className="h-px flex-1 bg-slate-200" />
               <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">ou</span>

@@ -4,7 +4,7 @@ import { PageHero, PageShell, StatusBadge } from "../components/SiteLayout";
 const plans = [
   { name: "Gratuit", price: "0 TND", features: ["Référencement de base", "Gestion simple des informations", "Commission sur réservation"] },
   { name: "Premium", price: "49 TND/mois", popular: true, features: ["Visibilité renforcée", "Meilleur classement", "Statistiques avancées", "Promotions flash"] },
-  { name: "Premium+", price: "99 TND/mois", features: ["Mise en avant prioritaire", "Accès aux demandes B2B", "Dashboard avancé", "Support prioritaire", "Participation recommandée aux CoWorki Events"] },
+  { name: "Premium+", price: "99 TND/mois", features: ["Mise en avant prioritaire", "Accès aux demandes B2B", "Tableau de bord avancé", "Support prioritaire", "Participation recommandée aux événements CoWorki"] },
 ];
 
 function Pricing() {

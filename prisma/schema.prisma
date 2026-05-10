@@ -48,6 +48,7 @@ model User {
   emailVerified     Boolean            @default(false)
   phoneVerified     Boolean            @default(false)
   isActive          Boolean            @default(false)
+  profileCompleted  Boolean            @default(false)
   profile           Profile?
   partner           Partner?
   company           Company?
